@@ -1,11 +1,9 @@
-from collections import namedtuple
-import altair as alt
-import math
 import pandas as pd
-import streamlit as st
-from pyfitness.load_data import fitfileinfo, fit2df
-
 import plotly.express as px
+import streamlit as st
+from pyfitness.load_data import fitfileinfo, fit2df, fit2csv
+
+st.set_page_config(layout="wide")
 
 """
 # Welcome to Vincent's experiments with cycling data files
@@ -13,6 +11,7 @@ import plotly.express as px
 This "dashboard" will look at the details of the FIT file 
 and the distribution on the data. You are able to compare two file side by side.
 """
+
 
 def fit_stats(df: pd.DataFrame):
     """Display the stats of a dataframe"""
@@ -41,43 +40,52 @@ with col1:
     fit_buffer_1 = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file1")
     if fit_buffer_1 is not None:
         fit_file1 = fit_buffer_1.getbuffer()
+        # Provide a CSV download option
+        st.download_button(label="Download FIT file as CSV",
+                           data=fit2csv(fit_file1),
+                           file_name="fit_file1.csv",
+                           mime='text/csv')
         with st.expander("Expand file details"):
             if fit_file1 is not None:
                 ffi1 = fitfileinfo(fit_file1)
                 st.write(ffi1)
         df1 = fit2df(fit_file1)
-        fit_stats(df1)
-
+        df1['seconds'] = pd.to_datetime(df1.index).astype(int) / 10 ** 9
+        df1['seconds'] = df1['seconds'].max() - df1['seconds']
+        st.write("Enter start and end times")
+        st.write("These values will be applied to the stats below")
+        start_time = st.number_input('Start time in seconds', min_value=0, max_value=int(df1.seconds.max()), value=0,
+                                     step=1)
+        end_time = st.number_input('End time in seconds', min_value=0, max_value=int(df1.seconds.max()),
+                                   value=int(df1.seconds.max()), step=1)
+        df_filtered = df1[(df1.seconds >= start_time) & (df1.seconds <= end_time)]
+        fig = px.line(df_filtered, x="seconds", y="power")
+        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+        fit_stats(df_filtered)
 
 with col2:
     fit_buffer_2 = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file2")
     if fit_buffer_2 is not None:
         fit_file2 = fit_buffer_2.getbuffer()
+        # Provide a CSV download option
+        st.download_button(label="Download FIT file as CSV",
+                           data=fit2csv(fit_file2),
+                           file_name="fit_file2.csv",
+                           mime='text/csv')
         with st.expander("Expand file details"):
             if fit_file2 is not None:
                 ffi2 = fitfileinfo(fit_file2)
                 st.write(ffi2)
         df2 = fit2df(fit_file2)
-        fit_stats(df2)
-
-#
-# with st.echo(code_location='below'):
-#     total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-#     num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
-#
-#     Point = namedtuple('Point', 'x y')
-#     data = []
-#
-#     points_per_turn = total_points / num_turns
-#
-#     for curr_point_num in range(total_points):
-#         curr_turn, i = divmod(curr_point_num, points_per_turn)
-#         angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-#         radius = curr_point_num / total_points
-#         x = radius * math.cos(angle)
-#         y = radius * math.sin(angle)
-#         data.append(Point(x, y))
-#
-#     st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-#         .mark_circle(color='#0068c9', opacity=0.5)
-#         .encode(x='x:Q', y='y:Q'))
+        df2['seconds'] = pd.to_datetime(df2.index).astype(int) / 10 ** 9
+        df2['seconds'] = df2['seconds'].max() - df2['seconds']
+        st.write("Enter start and end times")
+        st.write("These values will be applied to the stats below")
+        start_time = st.number_input('Start time in seconds', min_value=0, max_value=int(df2.seconds.max()), value=0,
+                                     step=1)
+        end_time = st.number_input('End time in seconds', min_value=0, max_value=int(df2.seconds.max()),
+                                   value=int(df2.seconds.max()), step=1)
+        df_filtered = df2[(df2.seconds >= start_time) & (df2.seconds <= end_time)]
+        fig = px.line(df_filtered, x="seconds", y="power")
+        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+        fit_stats(df_filtered)
