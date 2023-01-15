@@ -43,9 +43,9 @@ class FitVam(object):
         self.rolling_resistance = rolling_resistance
         self.CdA = self.drag_coefficient * self.frontal_area
         self.altitude = (self.df.altitude.max() - self.df.altitude.min()) / 2
-        self.air_density = self.air_density()
-        self.effective_wind_speed = self.effective_wind_speed()
-        self.rider_weight = None
+        # self.air_density = self.air_density()
+        # self.effective_wind_speed = self.effective_wind_speed()
+        self.rider_weight = rider_weight
         if 'enhanced_altitude' in df.columns:
             df['slope'] = df.enhanced_altitude.diff() / df.enhanced_altitude.diff()
         else:
@@ -56,27 +56,26 @@ class FitVam(object):
             pass
         else:
             df['speed'] = df.distance.diff() / df.time.diff()
-        df['seconds'] = pd.to_datetime(df.index, unit='s', origin='unix').astype(int) // 10 ** 9
-        df['seconds'] = df['seconds']
+        # df['seconds'] = pd.to_datetime(df.index, unit='s', origin='unix').astype(int) // 10 ** 9
+        # df['seconds'] = df['seconds']
         df['vam'] = (df.altitude.diff() / df.seconds.diff()) * 3600
+        df['rvam'] = df['vam'].rolling(5).mean()
 
-    def air_density(self):
-        return ((101325 / (287.05 * 273.15)) * (273.15 / (self.temperature + 273.15)) *
-                exp(-101325 / (287.05 * 273.15) * 9.8067 * (self.altitude / 1013.25)))
+    def climbing_force(self):
+        self.df['climb_force'] = self.bike_weight + self.rider_weight * 9.0867 * sin(atan(self.df.slope))
 
-    def effective_wind_speed(self):
-        """ wind_direction 180 tail, 0 = head """
-        return cos(radians(self.wind_direction)) * self.wind_speed
-
-    def air_drag(self, speed):
-        return 0.5 * self.CdA * self.air_density * (speed / (3.6 + self.effective_wind_speed)) ^ 2
-
-    def climbing_force(self, slope, total_mass):
-        return total_mass * 9.0867 * sin(atan(slope))
-
-    def forces_on_rider(self):
+    def calc_forces_on_rider(self):
         """Forces on rider times speed"""
-        total_mass = self.bike_weight + self.rider_weight
-        climbing = self.climbing_force(self.df.slope, self.rider_weight + self.bike_weight)
-        rolling = cos(atan(self.df.slope)) * 9.8067 * total_mass
+        # air_density
+        self.df['air_density'] = ((101325 / (287.05 * 273.15)) * (273.15 / (self.temperature + 273.15)) *
+                                  exp(-101325 / (287.05 * 273.15) * 9.8067 * (self.altitude / 1013.25)))
+        # effective_wind_speed
+        self.df['effective_wind_speed'] = cos(radians(self.wind_direction)) * self.wind_speed
+        # air_drag
+        # self.df['air_drag'] = 0.5 * self.CdA * self.df.air_density * (self.df.speed / (3.6 + self.df.effective_wind_speed)) ^ 2
+        self.df['air_drag'] = 0.5 * self.CdA * self.df.air_density # * (self.df.speed / (3.6 + self.df.effective_wind_speed)) ^ 2
+
+        # climbing_force
+        self.df['climb_force'] = self.bike_weight + self.rider_weight * 9.0867 * sin(atan(self.df.slope))
+        self.df['vpower'] = (self.df[['air_drag', 'climbing_force']].sum(axis='columns')) * self.df.speed
 
