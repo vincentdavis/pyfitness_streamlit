@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from pyfitness.load_data import fit2df
+from pyfitness.load_data import fit2df, fit2csv
 
 # from vam import FitVam
 from vam2 import estimated_power, max_climb
@@ -17,24 +17,27 @@ if fit_file is not None:
     # add a seconds col that starts at 0
     df['seconds'] = pd.to_datetime(df.index).astype(int) / 10 ** 9
     df['seconds'] = (df['seconds'] - df['seconds'].min()).astype(int)
-########
+    ########
     st.write("#### Enter start and end time")
     st.write("The time values are used to select the segment of the ride to analyze")
     with st.expander("Largest climbs segments"):
-        st.write(max_climb(df, 300))
-        st.write(max_climb(df, 600))
-        st.write(max_climb(df, 1200))
+        min5 = max_climb(df, 300)
+        st.text(min5['text'])
+        st.text(max_climb(df, 600)['text'])
+        st.text(max_climb(df, 1200)['text'])
+    st.write("Default max 5min climb")
     t1, t2 = st.columns(2)
     with t1:
-        start_time = st.number_input('Start time sec:', min_value=0, max_value=df['seconds'].max(), value=0, step=1)
+        start_time = st.number_input('Start time sec:', min_value=0, max_value=int(df['seconds'].max()),
+                                     value=int(min5['start_time']), step=1)
     with t2:
-        end_time = st.number_input('End time sec:', min_value=0, max_value=df['seconds'].max(),
-                                   value=df['seconds'].max(),
+        end_time = st.number_input('End time sec:', min_value=0, max_value=int(df['seconds'].max()),
+                                   value=int(min5['end_time']),
                                    step=1)
     df_filtered = df[(df['seconds'] >= start_time) & (df['seconds'] <= end_time)]
     altitude_fig = px.line(df_filtered, x='seconds', y='altitude', title='Altitude')
     st.plotly_chart(altitude_fig, theme="streamlit", use_container_width=True)
-########
+    ########
     c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
         rider_weight = st.number_input('Rider weight kg:', min_value=0, max_value=200, value=70, step=1)
@@ -53,42 +56,37 @@ if fit_file is not None:
         drive_train = st.number_input('Drive train loss:', min_value=0.0, max_value=1.0, value=0.05, step=0.01)
         roll = st.number_input('Smooting:', min_value=0, max_value=30, value=15, step=1)
 
-
-    fitted = estimated_power(df=df, start_time=start_time, end_time=end_time, rider_weight=rider_weight,
+    fitted = estimated_power(df=df_filtered, start_time=start_time, end_time=end_time, rider_weight=rider_weight,
                              bike_weight=bike_weight,
                              wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
                              drag_coefficient=drag_coefficient, frontal_area=frontal_area,
                              rolling_resistance=rolling_resistance, roll=roll)
 
-    filtered_df = fitted[(fitted['seconds'] >= start_time) & (fitted['seconds'] <= end_time)]
-    filtered_df['roll_vam'] = filtered_df['vam'].rolling(roll).mean()
-    with st.expander("See data fields and values"):
-        st.write(filtered_df.head(50))
-    rvam_fig = px.line(filtered_df, x='seconds', y='roll_vam', title='VAM')
-
     pvam_fig = go.Figure()
     pvam_fig.update_layout(
-        title='Measured vs Estimated VAM Power')
-    pvam_fig.add_trace(go.Scatter(name="Est VAM Power", x=filtered_df['seconds'],
-                                  y=filtered_df['vam_power'].rolling(roll).mean() * (1 - drive_train)))
-    pvam_fig.add_trace(go.Scatter(name="Power", x=filtered_df['seconds'], y=filtered_df['power'].rolling(roll).mean()))
-    # pvam_fig = px.line(x = filtered_df['seconds'], y = filtered_df['vam_power'].rolling(roll).mean(), title='Est Power', label='Est Power')
-    # pvam_fig.add_scatter(x=filtered_df['seconds'], y=filtered_df['power'].rolling(roll).mean(), mode='lines', name='Actual Power')
-
-
-    st.write(f"#### {roll} sec VAM")
-    st.plotly_chart(rvam_fig, theme="streamlit", use_container_width=True)
+        title='Measured vs Estimated Power')
+    pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'],
+                                  y=fitted['est_power'].rolling(roll).mean() * (1 - drive_train)))
+    pvam_fig.add_trace(go.Scatter(name="Power", x=fitted['seconds'], y=fitted['power'].rolling(roll).mean()))
     st.plotly_chart(pvam_fig, theme="streamlit", use_container_width=True)
 
     comp_fig = go.Figure()
     comp_fig.add_trace(
-        go.Scatter(name="Air", x=filtered_df['seconds'], y=filtered_df['air_drag_watts'].rolling(roll).mean()))
+        go.Scatter(name="Air", x=fitted['seconds'], y=fitted['air_drag_watts'].rolling(roll).mean()))
     comp_fig.add_trace(
-        go.Scatter(name="Climbing", x=filtered_df['seconds'], y=filtered_df['climbing_watts'].rolling(roll).mean()))
+        go.Scatter(name="Climbing", x=fitted['seconds'], y=fitted['climbing_watts'].rolling(roll).mean()))
     comp_fig.add_trace(
-        go.Scatter(name="Rolling", x=filtered_df['seconds'], y=filtered_df['rolling_watts'].rolling(roll).mean()))
+        go.Scatter(name="Rolling", x=fitted['seconds'], y=fitted['rolling_watts'].rolling(roll).mean()))
     comp_fig.add_trace(
-        go.Scatter(name="Acceleration", x=filtered_df['seconds'], y=filtered_df['acceleration_watts'].rolling(roll).mean()))
+        go.Scatter(name="Acceleration", x=fitted['seconds'], y=fitted['acceleration_watts'].rolling(roll).mean()))
     pvam_fig.update_layout(
         title='Components or Estimated VAM Power')
     st.plotly_chart(comp_fig, theme="streamlit", use_container_width=True)
+
+    with st.expander("Inspect the data"):
+        st.dataframe(fitted, use_container_width=True)
+
+    st.download_button(label="Download FIT file and power estimates as csv for the segment",
+                       data=fit2csv(fitted),
+                       file_name="est_vs_actual.csv",
+                       mime='text/csv')

@@ -3,4 +3,4 @@ pandas
 numpy
 streamlit
 fitdecode
-pyfitness==0.1.1
+pyfitness==0.1.2
