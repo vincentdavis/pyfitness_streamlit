@@ -53,7 +53,8 @@ if fit_file is not None:
         rolling_resistance = st.number_input('Rolling resistance:', min_value=0.0000, max_value=0.1, value=0.0005,
                                              step=0.0001, format="%.4f")
     with c5:
-        drive_train = st.number_input('Drive train loss:', min_value=0.0, max_value=1.0, value=0.05, step=0.01)
+        efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0, max_value=1.0,
+                                          value=0.05, step=0.01)
         roll = st.number_input('Smooting:', min_value=0, max_value=30, value=15, step=1)
 
     start_point = df_filtered.iloc[0].to_dict()
@@ -64,8 +65,8 @@ if fit_file is not None:
                                         bike_weight=bike_weight,
                                         wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
                                         drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                                        rolling_resistance=rolling_resistance, roll=0)
-    p2ppower = point2pointfitted.iloc[-1]['est_power'] * (1 - drive_train)
+                                        rolling_resistance=rolling_resistance, roll=0, efficiency_loss=efficiency_loss)
+    p2ppower = point2pointfitted.iloc[-1]['est_power']
     st.write("#### Climbs stats")
     st.write(f"Total Time: {point2point['seconds'].max() - point2point['seconds'].min()}seconds")
     st.write(f"Total Distance: {(point2point['distance'].max() - point2point['distance'].min()) / 1000:.02f}meters")
@@ -75,13 +76,12 @@ if fit_file is not None:
                              bike_weight=bike_weight,
                              wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
                              drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                             rolling_resistance=rolling_resistance, roll=roll)
+                             rolling_resistance=rolling_resistance, roll=roll, efficiency_loss=efficiency_loss)
 
     pvam_fig = go.Figure()
     pvam_fig.update_layout(
         title='Measured vs Estimated Power')
-    pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'],
-                                  y=fitted['est_power'].rolling(roll).mean() * (1 - drive_train)))
+    pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'], y=fitted['est_power'].rolling(roll).mean()))
     pvam_fig.add_trace(go.Scatter(name="Power", x=fitted['seconds'], y=fitted['power'].rolling(roll).mean()))
     pvam_fig.add_trace(
         go.Scatter(name="Est. Power (point2point)", x=point2pointfitted['seconds'], y=[p2ppower, p2ppower]))
