@@ -1,9 +1,8 @@
-import configparser
-import datetime
-import json
-from bs4 import BeautifulSoup
-from requests import Session
-import logging
+# import datetime
+# import json
+# from bs4 import BeautifulSoup
+# from requests import Session
+# import logging
 # logging.basicConfig(filename='fetcher.log', level=logging.ERROR)
 from requests_html import HTMLSession
 import requests
