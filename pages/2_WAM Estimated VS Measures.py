@@ -59,15 +59,16 @@ if fit_file is not None:
     start_point = df_filtered.iloc[0].to_dict()
     end_point = df_filtered.iloc[-1].to_dict()
     point2point = pd.DataFrame.from_dict([start_point, end_point])
-    point2pointfitted = estimated_power(df=point2point, start_time=start_time, end_time=end_time, rider_weight=rider_weight,
-                             bike_weight=bike_weight,
-                             wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
-                             drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                             rolling_resistance=rolling_resistance, roll=0)
-    p2ppower = point2pointfitted.iloc[-1]['est_power'] * (1-drive_train)
+    point2pointfitted = estimated_power(df=point2point, start_time=start_time, end_time=end_time,
+                                        rider_weight=rider_weight,
+                                        bike_weight=bike_weight,
+                                        wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
+                                        drag_coefficient=drag_coefficient, frontal_area=frontal_area,
+                                        rolling_resistance=rolling_resistance, roll=0)
+    p2ppower = point2pointfitted.iloc[-1]['est_power'] * (1 - drive_train)
     st.write("#### Climbs stats")
     st.write(f"Total Time: {point2point['seconds'].max() - point2point['seconds'].min()}seconds")
-    st.write(f"Total Distance: {(point2point['distance'].max() - point2point['distance'].min())/1000:.02f}meters")
+    st.write(f"Total Distance: {(point2point['distance'].max() - point2point['distance'].min()) / 1000:.02f}meters")
     st.write(f"Total Elevation gain: {point2point['altitude'].max() - point2point['altitude'].min():.02f}meters")
     st.write(f"Estimated power: {p2ppower:.02f}watts")
     fitted = estimated_power(df=df_filtered, start_time=start_time, end_time=end_time, rider_weight=rider_weight,
@@ -82,7 +83,8 @@ if fit_file is not None:
     pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'],
                                   y=fitted['est_power'].rolling(roll).mean() * (1 - drive_train)))
     pvam_fig.add_trace(go.Scatter(name="Power", x=fitted['seconds'], y=fitted['power'].rolling(roll).mean()))
-    pvam_fig.add_trace(go.Scatter(name="Est. Power (point2point)", x=point2pointfitted['seconds'], y=[p2ppower, p2ppower]))
+    pvam_fig.add_trace(
+        go.Scatter(name="Est. Power (point2point)", x=point2pointfitted['seconds'], y=[p2ppower, p2ppower]))
     st.plotly_chart(pvam_fig, theme="streamlit", use_container_width=True)
 
     comp_fig = go.Figure()

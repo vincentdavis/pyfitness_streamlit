@@ -4,7 +4,8 @@
 # from requests import Session
 # import logging
 # logging.basicConfig(filename='fetcher.log', level=logging.ERROR)
-from requests_html import HTMLSession
+# from requests_html import HTMLSession
+from requests import Session
 import requests
 
 from datetime import datetime, timedelta
@@ -23,7 +24,7 @@ class ZwiftLogin(object):
         self.login_data = {}
         self.login_data.update(st.secrets['zwiftpower'])
     def get_request(self, viewurl, content=False):
-        session = HTMLSession()
+        session = Session()
         z = session.get('https://zwiftpower.com')
         # logging.info(z.cookies.get('phpbb3_lswlk_sid'))
         # print(z.cookies)
