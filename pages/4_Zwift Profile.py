@@ -6,7 +6,8 @@ from zp import zwiftprofile
 
 """# Get your zwift profile data
 Username and password are not stored, they are sent directly to Zwift to get your profile data as a JSON file."""
-st.write("This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
+st.write(
+    "This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
 
 c1, c2 = st.columns(2)
 with c1:

@@ -51,8 +51,8 @@ if fit_file is not None:
         drag_coefficient = st.number_input('Drag coefficient:', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
     with c4:
         frontal_area = st.number_input('Frontal area m^2:', min_value=0.0, max_value=2.0, value=0.565, step=0.1)
-        rolling_resistance = st.number_input('Rolling resistance:', min_value=0.0000, max_value=0.1, value=0.0005,
-                                             step=0.0001, format="%.4f")
+        rolling_resistance = st.number_input('Rolling resistance:', min_value=0.000, max_value=0.1, value=0.005,
+                                             step=0.001, format="%.3f")
     with c5:
         efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0, max_value=1.0,
                                           value=0.05, step=0.01)
@@ -69,10 +69,10 @@ if fit_file is not None:
         for i, (key, value) in enumerate(avg_est_power.items()):
             if i%3 == 0:
                 with c1:
-                    st.write(f"{key}: {value:.02f}")
+                    st.write(f"{key}: {value:.03f}")
             if i%3 == 1:
                 with c2:
-                    st.write(f"{key}: {value:.02f}")
+                    st.write(f"{key}: {value:.03f}")
             if i%3 == 2:
                 with c3:
                     st.write(f"{key}: {value:.02f}")

@@ -50,14 +50,14 @@ def estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, w
     df['effective_wind_speed'] = np.cos(radians(wind_direction)) * wind_speed
     # # Components of power, watts
     df['air_drag_watts'] = 0.5 * CdA * df.air_density * np.square(df.speed + df.effective_wind_speed) * df.speed
-    df['climbing_watts'] = (bike_weight + rider_weight) * 9.0867 * np.sin(np.arctan(df.slope)) * df.speed
+    df['climbing_watts'] = (bike_weight + rider_weight) * 9.8067 * np.sin(np.arctan(df.slope)) * df.speed
     df['rolling_watts'] = np.cos(np.arctan(df.slope)) * 9.8067 * (
             bike_weight + rider_weight) * rolling_resistance * df.speed
     df['acceleration_watts'] = (bike_weight + rider_weight) * (df.speed.diff() / df.seconds.diff()) * df.speed
     df['est_power_no_loss'] = df[['air_drag_watts', 'climbing_watts', 'rolling_watts', 'acceleration_watts']].sum(
         axis='columns')
-    df['est_power'] = df['est_power_no_loss'] * (1 - efficiency_loss)
-    df['est_power_no_acc'] = (df['est_power_no_loss'] - df['acceleration_watts']) * (1 - efficiency_loss)
+    df['est_power'] = df['est_power_no_loss'] / (1 - efficiency_loss)
+    df['est_power_no_acc'] = (df['est_power_no_loss'] - df['acceleration_watts']) / (1 - efficiency_loss)
     return df
 
 
@@ -72,6 +72,7 @@ def average_estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: 
     accent = df.altitude.max() - df.altitude.min()
     slope = accent / distance
     speed = distance / elpased_time
+    speed_kph = speed * 3.6
     avg_elevation = df.altitude.mean()
     CdA = drag_coefficient * frontal_area
 
@@ -80,15 +81,16 @@ def average_estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: 
     effective_wind_speed = np.cos(radians(wind_direction)) * wind_speed
     # # Components of power, watts
     air_drag_watts = 0.5 * CdA * air_density * (speed + effective_wind_speed) ** 2 * speed
-    climbing_watts = (bike_weight + rider_weight) * 9.0867 * np.sin(np.arctan(slope)) * speed
+    climbing_watts = (bike_weight + rider_weight) * 9.8067 * np.sin(np.arctan(slope)) * speed
     rolling_watts = np.cos(np.arctan(slope)) * 9.8067 * (
             bike_weight + rider_weight) * rolling_resistance * speed
     est_power_no_loss = sum([air_drag_watts, climbing_watts, rolling_watts])
-    est_power = est_power_no_loss * (1 - efficiency_loss)
+    est_power = est_power_no_loss / (1 - efficiency_loss)
+    vam_mhr = (accent / elpased_time) * 3600
 
     return {'elpased_time': elpased_time, 'distance': distance, 'accent': accent, 'slope': slope, 'speed': speed,
-            'avg_elevation': avg_elevation, 'CdA': CdA, 'air_density': air_density,
+            'speed_kph': speed_kph, 'avg_elevation': avg_elevation, 'frontal_area': frontal_area,
+            'drag_coefficient': drag_coefficient, 'CdA': CdA, 'air_density': air_density,
             'effective_wind_speed': effective_wind_speed,
             'air_drag_watts': air_drag_watts, 'climbing_watts': climbing_watts, 'rolling_watts': rolling_watts,
-            'est_power_no_loss': est_power_no_loss,
-            'est_power': est_power}
+            'vam_mhr': vam_mhr, 'est_power_no_loss': est_power_no_loss, 'est_power': est_power}
