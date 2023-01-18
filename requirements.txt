@@ -2,6 +2,7 @@ plotly
 pandas
 numpy
 requests_html
+requests
 streamlit
 fitdecode
 pyfitness==0.1.2

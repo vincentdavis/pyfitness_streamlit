@@ -6,8 +6,18 @@ from requests import Session
 import logging
 # logging.basicConfig(filename='fetcher.log', level=logging.ERROR)
 from requests_html import HTMLSession
+import requests
+
 from datetime import datetime, timedelta
 import streamlit as st
+
+def zwiftprofile(username, password):
+    try:
+        get_token = requests.get(f"https://z00pbp8lig.execute-api.us-west-1.amazonaws.com/latest/zwiftId?username={username}&pw={password}")
+        get_profile = requests.get(f"https://zwiftapi.weracehere.org/profile?zid={get_token.json()}")
+        return get_profile.json()
+    except Exception as e:
+        st.write(f"Error:\n{e}.")
 
 class ZwiftLogin(object):
     def __init__(self):
