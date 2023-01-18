@@ -11,7 +11,7 @@ st.set_page_config(layout="wide")
 This "dashboard" will look at the details of the FIT file 
 and the distribution on the data. You are able to compare two file side by side.
 """
-st.write("This is a work in progress. Please report any issues on the [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
+st.write("This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
 
 
 

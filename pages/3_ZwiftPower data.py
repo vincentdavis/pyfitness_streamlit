@@ -6,7 +6,7 @@ from zp import ZwiftLogin
 
 st.write("## Get ZwiftPower data")
 st.write("Enter the api url, see browser developer tools")
-st.write("This is a work in progress. Please report any issues on the [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
+st.write("This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
 
 api_url = st.text_input("Enter zwift api url",
                         value="https://zwiftpower.com/cache3/results/3421716_view.json?_=1673971594335")

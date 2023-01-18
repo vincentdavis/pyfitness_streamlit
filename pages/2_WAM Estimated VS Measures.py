@@ -11,7 +11,7 @@ from vam2 import estimated_power, max_climb, average_estimated_power
 ### Currently in development
 Feel free to give it a try, but it is not ready for prime time yet.
 """
-st.write("This is a work in progress. Please report any issues on the [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
+st.write("This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
 fit_file = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file1")
 if fit_file is not None:
     df = fit2df(fit_file)
