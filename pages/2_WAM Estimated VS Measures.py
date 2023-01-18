@@ -104,6 +104,6 @@ if fit_file is not None:
         st.dataframe(fitted, use_container_width=True)
 
     st.download_button(label="Download FIT file and power estimates as csv for the segment",
-                       data=fit2csv(fitted),
+                       data=fitted.to_csv(index=False).encode('utf-8'),
                        file_name="est_vs_actual.csv",
                        mime='text/csv')
