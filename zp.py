@@ -30,14 +30,15 @@ class ZwiftLogin(object):
         # print(z.cookies)
         self.login_data['sid'] = z.cookies.get('phpbb3_lswlk_sid')
         if "Login Required" in z.text:  # get logged in
-            print("Login Required")
+            # print("Login Required")
             try:
                 session.post("https://zwiftpower.com", data=self.login_data)
-                assert "Profile" in session.get("https://zwiftpower.com/events.php").text
+                assert "Login Required" not in session.get("https://zwiftpower.com/events.php").text
                 # print('login success')
                 # logging.info('Login successful')
             except Exception as e:
-                print('Login error')
+                pass
+                # print('Login error')
                 # logging.error(f"Failed to login: {e}")
         response = session.get(viewurl)
         # logging.info("Status", response.status_code)

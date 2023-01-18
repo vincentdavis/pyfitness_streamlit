@@ -19,7 +19,7 @@ def max_climb(df, seconds):
 
 def estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, wind_speed: float, wind_direction: int,
                     temperature: float, drag_coefficient: float, frontal_area: float, rolling_resistance: float,
-                    roll: int, efficiency_loss: float) -> pd.DataFrame:
+                    efficiency_loss: float) -> pd.DataFrame:
     # Use the best Altitude data.
     if 'enhanced_altitude' in df.columns:
         df['slope'] = df.enhanced_altitude.diff() / df.distance.diff()
@@ -40,7 +40,6 @@ def estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, w
         df['seconds'] = df['seconds'] - df.seconds.min()
 
     df['vam'] = (df.altitude.diff() / df.seconds.diff()) * 3600
-    df['vam_smoothed'] = df['vam'].rolling(roll).mean()
 
     # # Constants
     CdA = drag_coefficient * frontal_area
@@ -52,9 +51,44 @@ def estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, w
     # # Components of power, watts
     df['air_drag_watts'] = 0.5 * CdA * df.air_density * np.square(df.speed + df.effective_wind_speed) * df.speed
     df['climbing_watts'] = (bike_weight + rider_weight) * 9.0867 * np.sin(np.arctan(df.slope)) * df.speed
-    df['rolling_watts'] = (np.cos(np.arctan(df.slope)) * 9.8067 * (
-            bike_weight + rider_weight) * rolling_resistance) * df.speed
+    df['rolling_watts'] = np.cos(np.arctan(df.slope)) * 9.8067 * (
+            bike_weight + rider_weight) * rolling_resistance * df.speed
     df['acceleration_watts'] = (bike_weight + rider_weight) * (df.speed.diff() / df.seconds.diff()) * df.speed
-    df['est_power_no_loss'] = df[['air_drag_watts', 'climbing_watts', 'rolling_watts', 'acceleration_watts']].sum(axis='columns')
+    df['est_power_no_loss'] = df[['air_drag_watts', 'climbing_watts', 'rolling_watts', 'acceleration_watts']].sum(
+        axis='columns')
     df['est_power'] = df['est_power_no_loss'] * (1 - efficiency_loss)
+    df['est_power_no_acc'] = (df['est_power_no_loss'] - df['acceleration_watts']) * (1 - efficiency_loss)
     return df
+
+
+def average_estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, wind_speed: float,
+                            wind_direction: int,
+                            temperature: float, drag_coefficient: float, frontal_area: float, rolling_resistance: float,
+                            efficiency_loss: float) -> dict:
+    """Find the average estimated power for the given time period
+    We assume the df is filtered to the area of interest"""
+    elpased_time = df.seconds.max() - df.seconds.min()
+    distance = df.distance.max() - df.distance.min()
+    accent = df.altitude.max() - df.altitude.min()
+    slope = accent / distance
+    speed = distance / elpased_time
+    avg_elevation = df.altitude.mean()
+    CdA = drag_coefficient * frontal_area
+
+    air_density = ((101325 / (287.05 * 273.15)) * (273.15 / (temperature + 273.15)) *
+                   exp((-101325 / (287.05 * 273.15)) * 9.8067 * (avg_elevation / 1013.25)))
+    effective_wind_speed = np.cos(radians(wind_direction)) * wind_speed
+    # # Components of power, watts
+    air_drag_watts = 0.5 * CdA * air_density * (speed + effective_wind_speed) ** 2 * speed
+    climbing_watts = (bike_weight + rider_weight) * 9.0867 * np.sin(np.arctan(slope)) * speed
+    rolling_watts = np.cos(np.arctan(slope)) * 9.8067 * (
+            bike_weight + rider_weight) * rolling_resistance * speed
+    est_power_no_loss = sum([air_drag_watts, climbing_watts, rolling_watts])
+    est_power = est_power_no_loss * (1 - efficiency_loss)
+
+    return {'elpased_time': elpased_time, 'distance': distance, 'accent': accent, 'slope': slope, 'speed': speed,
+            'avg_elevation': avg_elevation, 'CdA': CdA, 'air_density': air_density,
+            'effective_wind_speed': effective_wind_speed,
+            'air_drag_watts': air_drag_watts, 'climbing_watts': climbing_watts, 'rolling_watts': rolling_watts,
+            'est_power_no_loss': est_power_no_loss,
+            'est_power': est_power}

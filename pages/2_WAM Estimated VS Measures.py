@@ -5,7 +5,7 @@ import streamlit as st
 from pyfitness.load_data import fit2df
 
 # from vam import FitVam
-from vam2 import estimated_power, max_climb
+from vam2 import estimated_power, max_climb, average_estimated_power
 
 """ # Estimated powewr VS Measured power
 ### Currently in development
@@ -56,35 +56,47 @@ if fit_file is not None:
         efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0, max_value=1.0,
                                           value=0.05, step=0.01)
         roll = st.number_input('Smooting:', min_value=0, max_value=30, value=15, step=1)
+    avg_est_power = average_estimated_power(df=df_filtered, rider_weight=rider_weight,
+                                            bike_weight=bike_weight,
+                                            wind_speed=wind_speed, wind_direction=wind_direction,
+                                            temperature=temperature,
+                                            drag_coefficient=drag_coefficient, frontal_area=frontal_area,
+                                            rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
+    with st.expander("Climb stats", expanded=True):
+        st.write("#### Climbs stats")
+        c1, c2, c3 = st.columns(3)
+        for i, (key, value) in enumerate(avg_est_power.items()):
+            if i%3 == 0:
+                with c1:
+                    st.write(f"{key}: {value:.02f}")
+            if i%3 == 1:
+                with c2:
+                    st.write(f"{key}: {value:.02f}")
+            if i%3 == 2:
+                with c3:
+                    st.write(f"{key}: {value:.02f}")
 
-    start_point = df_filtered.iloc[0].to_dict()
-    end_point = df_filtered.iloc[-1].to_dict()
-    point2point = pd.DataFrame.from_dict([start_point, end_point])
-    point2pointfitted = estimated_power(df=point2point,
-                                        rider_weight=rider_weight,
-                                        bike_weight=bike_weight,
-                                        wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
-                                        drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                                        rolling_resistance=rolling_resistance, roll=0, efficiency_loss=efficiency_loss)
-    p2ppower = point2pointfitted.iloc[-1]['est_power']
-    st.write("#### Climbs stats")
-    st.write(f"Total Time: {point2point['seconds'].max() - point2point['seconds'].min()}seconds")
-    st.write(f"Total Distance: {(point2point['distance'].max() - point2point['distance'].min()) / 1000:.02f}meters")
-    st.write(f"Total Elevation gain: {point2point['altitude'].max() - point2point['altitude'].min():.02f}meters")
-    st.write(f"Estimated power: {p2ppower:.02f}watts")
-    fitted = estimated_power(df=df_filtered, rider_weight=rider_weight,
-                             bike_weight=bike_weight,
-                             wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
-                             drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                             rolling_resistance=rolling_resistance, roll=roll, efficiency_loss=efficiency_loss)
+        fitted = estimated_power(df=df_filtered, rider_weight=rider_weight,
+                                 bike_weight=bike_weight,
+                                 wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
+                                 drag_coefficient=drag_coefficient, frontal_area=frontal_area,
+                                 rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
 
     pvam_fig = go.Figure()
     pvam_fig.update_layout(
         title='Measured vs Estimated Power')
     pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'], y=fitted['est_power'].rolling(roll).mean()))
     pvam_fig.add_trace(go.Scatter(name="Power", x=fitted['seconds'], y=fitted['power'].rolling(roll).mean()))
+    pvam_fig.add_trace(go.Scatter(name="Est. Power - acceleration", x=fitted['seconds'], y=fitted['est_power_no_acc'].rolling(roll).mean()))
     pvam_fig.add_trace(
-        go.Scatter(name="Est. Power (point2point)", x=point2pointfitted['seconds'], y=[p2ppower, p2ppower]))
+        go.Scatter(name="Est. Power (point2point)", x=[start_time, end_time], y=[avg_est_power['est_power'],
+                                                                                 avg_est_power['est_power']]))
+    pvam_fig.add_trace(
+        go.Scatter(name="Avg Power", x=[start_time, end_time], y=[fitted['power'].mean(), fitted['power'].mean()]))
+    pvam_fig.add_trace(
+        go.Scatter(name="Avg Est. Power", x=[start_time, end_time], y=[fitted['est_power'].mean(), fitted['est_power'].mean()]))
+
+
     st.plotly_chart(pvam_fig, theme="streamlit", use_container_width=True)
 
     comp_fig = go.Figure()
