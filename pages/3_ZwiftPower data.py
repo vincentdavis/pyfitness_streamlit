@@ -8,7 +8,3 @@ if api_url is not None:
     z = ZwiftLogin()
     res = z.get_request(viewurl=api_url)
     st.text(json.dumps(res, indent=2))
-
-
-
-
