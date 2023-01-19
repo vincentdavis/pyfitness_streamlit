@@ -7,12 +7,11 @@ from pyfitness.load_data import fit2df
 # from vam import FitVam
 from vam2 import estimated_power, max_climb, average_estimated_power
 
-""" # Estimated powewr VS Measured power
-### Currently in development
-Feel free to give it a try, but it is not ready for prime time yet.
+""" # Estimated VS Measured: power
+"This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
+
 """
-st.write(
-    "This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
+
 fit_file = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file1")
 if fit_file is not None:
     df = fit2df(fit_file)
@@ -85,10 +84,14 @@ if fit_file is not None:
                 with c3:
                     st.write(f"{key}: {value:.02f}")
 
-    # st.write("## Key power Stats")
-    # st.write(f"Average measured power: {fitted['power']:.02f}")
-    # st.write(f"Climb estimated power: {fitted['est_power'].mean()}")
-    # st.write(f"Average estimated power: {avg_est_power['est_power']:.02f}")
+    st.write("## Key power Stats")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.write(f"Average measured power: {fitted['power'].mean():.02f}")
+    with c2:
+        st.write(f"Estimated Climb power: {avg_est_power['est_power']:.02f}")
+    with c3:
+        st.write(f"Average estimated power: {fitted['est_power'].mean():.02f}")
 
     fig = go.Figure()
     pvam_fig = go.Figure()
