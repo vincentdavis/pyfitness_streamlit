@@ -6,6 +6,9 @@ from zp import zwiftprofile
 
 """# Get your zwift profile data
 This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
+
+You can also contact me on discord: [Vincent](discordapp.com/users/VincentDavis#3484
+
 Username and password are not stored, they are sent directly to Zwift to get your profile data as a JSON file."""
 
 c1, c2 = st.columns(2)

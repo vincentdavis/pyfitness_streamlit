@@ -4,7 +4,11 @@ import streamlit as st
 
 from zp import ZwiftLogin
 
-st.write("## Get ZwiftPower data")
+"""## Get ZwiftPower data")
+This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
+
+You can also contact me on discord: [Vincent](discordapp.com/users/VincentDavis#3484
+"""
 st.write("Enter the api url, see browser developer tools")
 st.write("This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
 
