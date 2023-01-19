@@ -70,11 +70,6 @@ with col2:
     fit_buffer_2 = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file2")
     if fit_buffer_2 is not None:
         fit_file2 = fit_buffer_2.getbuffer()
-        # Provide a CSV download option
-        # st.download_button(label="Download FIT file as CSV",
-        #                    data=fit_file2.to_csv(index=False).encode('utf-8'),
-        #                    file_name="fit_file2.csv",
-        #                    mime='text/csv')
 
         with st.expander("Expand file details"):
             if fit_file2 is not None:
@@ -93,3 +88,8 @@ with col2:
         fig = px.line(df_filtered, x="seconds", y="power")
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
         fit_stats(df_filtered)
+        # Provide a CSV download option
+        # st.download_button(label="Download FIT file as CSV",
+        #                    data=fit_file2.to_csv(index=False).encode('utf-8'),
+        #                    file_name="fit_file2.csv",
+        #                    mime='text/csv')
