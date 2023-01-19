@@ -11,7 +11,8 @@ from vam2 import estimated_power, max_climb, average_estimated_power
 ### Currently in development
 Feel free to give it a try, but it is not ready for prime time yet.
 """
-st.write("This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
+st.write(
+    "This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)")
 fit_file = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file1")
 if fit_file is not None:
     df = fit2df(fit_file)
@@ -55,7 +56,7 @@ if fit_file is not None:
                                              step=0.001, format="%.3f")
     with c5:
         efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0, max_value=1.0,
-                                          value=0.05, step=0.01)
+                                          value=0.04, step=0.01)
         roll = st.number_input('Smooting:', min_value=0, max_value=30, value=15, step=1)
     avg_est_power = average_estimated_power(df=df_filtered, rider_weight=rider_weight,
                                             bike_weight=bike_weight,
@@ -63,40 +64,48 @@ if fit_file is not None:
                                             temperature=temperature,
                                             drag_coefficient=drag_coefficient, frontal_area=frontal_area,
                                             rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
+
+    fitted = estimated_power(df=df_filtered, rider_weight=rider_weight,
+                             bike_weight=bike_weight,
+                             wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
+                             drag_coefficient=drag_coefficient, frontal_area=frontal_area,
+                             rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
+
     with st.expander("Climb stats", expanded=True):
         st.write("#### Climbs stats")
         c1, c2, c3 = st.columns(3)
         for i, (key, value) in enumerate(avg_est_power.items()):
-            if i%3 == 0:
+            if i % 3 == 0:
                 with c1:
                     st.write(f"{key}: {value:.03f}")
-            if i%3 == 1:
+            if i % 3 == 1:
                 with c2:
                     st.write(f"{key}: {value:.03f}")
-            if i%3 == 2:
+            if i % 3 == 2:
                 with c3:
                     st.write(f"{key}: {value:.02f}")
 
-        fitted = estimated_power(df=df_filtered, rider_weight=rider_weight,
-                                 bike_weight=bike_weight,
-                                 wind_speed=wind_speed, wind_direction=wind_direction, temperature=temperature,
-                                 drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                                 rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
+    st.write("## Key power Stats")
+    st.write(f"Average measured power: {avg_est_power['average_power']:.02f}"    
+        f"Climb estimated power: {fitted['est_power'].mean()}"     
+             f"Average estimated power: {avg_est_power['est_power']:.02f})
 
+    fig = go.Figure()
     pvam_fig = go.Figure()
     pvam_fig.update_layout(
         title='Measured vs Estimated Power')
     pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'], y=fitted['est_power'].rolling(roll).mean()))
     pvam_fig.add_trace(go.Scatter(name="Power", x=fitted['seconds'], y=fitted['power'].rolling(roll).mean()))
-    pvam_fig.add_trace(go.Scatter(name="Est. Power - acceleration", x=fitted['seconds'], y=fitted['est_power_no_acc'].rolling(roll).mean()))
+    pvam_fig.add_trace(go.Scatter(name="Est. Power - acceleration", x=fitted['seconds'],
+                                  y=fitted['est_power_no_acc'].rolling(roll).mean()))
     pvam_fig.add_trace(
         go.Scatter(name="Est. Power (point2point)", x=[start_time, end_time], y=[avg_est_power['est_power'],
                                                                                  avg_est_power['est_power']]))
     pvam_fig.add_trace(
         go.Scatter(name="Avg Power", x=[start_time, end_time], y=[fitted['power'].mean(), fitted['power'].mean()]))
     pvam_fig.add_trace(
-        go.Scatter(name="Avg Est. Power", x=[start_time, end_time], y=[fitted['est_power'].mean(), fitted['est_power'].mean()]))
-
+        go.Scatter(name="Avg Est. Power", x=[start_time, end_time],
+                   y=[fitted['est_power'].mean(), fitted['est_power'].mean()]))
 
     st.plotly_chart(pvam_fig, theme="streamlit", use_container_width=True)
 

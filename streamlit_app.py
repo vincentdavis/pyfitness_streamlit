@@ -43,10 +43,11 @@ with col1:
     if fit_buffer_1 is not None:
         fit_file1 = fit_buffer_1.getbuffer()
         # Provide a CSV download option
-        st.download_button(label="Download FIT file as CSV",
-                           data=fit2csv(fit_file1),
-                           file_name="fit_file1.csv",
-                           mime='text/csv')
+        # st.download_button(label="Download FIT file as CSV",
+        #                    data=fit_file1.to_csv(index=False).encode('utf-8'),
+        #                    file_name="fit_file1.csv",
+        #                    mime='text/csv')
+
         with st.expander("Expand file details"):
             if fit_file1 is not None:
                 ffi1 = fitfileinfo(fit_file1)
@@ -70,10 +71,11 @@ with col2:
     if fit_buffer_2 is not None:
         fit_file2 = fit_buffer_2.getbuffer()
         # Provide a CSV download option
-        st.download_button(label="Download FIT file as CSV",
-                           data=fit2csv(fit_file2),
-                           file_name="fit_file2.csv",
-                           mime='text/csv')
+        # st.download_button(label="Download FIT file as CSV",
+        #                    data=fit_file2.to_csv(index=False).encode('utf-8'),
+        #                    file_name="fit_file2.csv",
+        #                    mime='text/csv')
+
         with st.expander("Expand file details"):
             if fit_file2 is not None:
                 ffi2 = fitfileinfo(fit_file2)
