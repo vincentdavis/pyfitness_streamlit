@@ -85,10 +85,10 @@ if fit_file is not None:
                 with c3:
                     st.write(f"{key}: {value:.02f}")
 
-    st.write("## Key power Stats")
-    st.write(f"Average measured power: {avg_est_power['average_power']:.02f}")
-    st.write(f"Climb estimated power: {fitted['est_power'].mean()}")
-    st.write(f"Average estimated power: {avg_est_power['est_power']:.02f}")
+    # st.write("## Key power Stats")
+    # st.write(f"Average measured power: {fitted['power']:.02f}")
+    # st.write(f"Climb estimated power: {fitted['est_power'].mean()}")
+    # st.write(f"Average estimated power: {avg_est_power['est_power']:.02f}")
 
     fig = go.Figure()
     pvam_fig = go.Figure()
