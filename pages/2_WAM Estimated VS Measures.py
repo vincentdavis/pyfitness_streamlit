@@ -34,10 +34,20 @@ if fit_file is not None:
             st.write("#### Enter start and end time")
             st.write("The time values are used to select the segment of the ride to analyze")
             with st.expander("Largest climbs segments"):
-                min5 = max_climb(df, 300)
-                st.text(min5['text'])
-                st.text(max_climb(df, 600)['text'])
-                st.text(max_climb(df, 1200)['text'])
+                try:
+                    min5 = max_climb(df, 300)
+                    st.text(min5['text'])
+                except:
+                    st.write("No 5min climb found")
+                try:
+                    st.text(max_climb(df, 600)['text'])
+                except:
+                    st.write("No 10min climb found")
+                try:
+                    st.text(max_climb(df, 1200)['text'])
+                except:
+                    st.write("No 20min climb found")
+
             st.write("Default max 5min climb")
             t1, t2 = st.columns(2)
             with t1:
