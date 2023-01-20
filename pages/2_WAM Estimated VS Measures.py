@@ -107,6 +107,10 @@ if fit_file is not None:
                             st.write(f"{key}: {value:.02f}")
 
             st.write("## Key power Stats")
+            with st.expander("stat info", expanded=False):
+                st.write("- Average measured power: the average power from your FIT file for the selected segment"
+                         "- Average estimated power: The average power of the sec by sec esitmated power"
+                         "- Estimated Climb power: The Estimated power to do the climb, like ClimbByBike")
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.write(f"Average measured power: {fitted['power'].mean():.02f}")
