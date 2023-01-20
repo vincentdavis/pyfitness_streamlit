@@ -46,7 +46,7 @@ def estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, w
     altitude = (df.altitude.max() - df.altitude.min()) / 2
     # intermediate calculations
     df['air_density'] = ((101325 / (287.05 * 273.15)) * (273.15 / (temperature + 273.15)) *
-                         exp((-101325 / (287.05 * 273.15)) * 9.8067 * (altitude / 1013.25)))
+                         exp((-101325 / (287.05 * 273.15)) * 9.8067 * (altitude / 101325)))
     df['effective_wind_speed'] = np.cos(radians(wind_direction)) * wind_speed
     # # Components of power, watts
     df['air_drag_watts'] = 0.5 * CdA * df.air_density * np.square(df.speed + df.effective_wind_speed) * df.speed
