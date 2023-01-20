@@ -17,7 +17,6 @@ and the distribution on the data. You are able to compare two file side by side.
 """
 
 
-
 def fit_stats(df: pd.DataFrame):
     """Display the stats of a dataframe"""
     st.write("Preview of the FIT file.\nYou can expand this")
