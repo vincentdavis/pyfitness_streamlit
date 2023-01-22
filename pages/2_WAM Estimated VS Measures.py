@@ -4,9 +4,10 @@ import plotly.graph_objects as go
 import streamlit as st
 from pyfitness.load_data import fit2df
 from pyfitness.statistics import max_climb
+from pyfitness.dynamics import climb_power_estimate
 
 # from vam import FitVam
-from vam2 import estimated_power, average_estimated_power
+from vam2 import estimated_power
 
 """ # Estimated VS Measured: power
 This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
@@ -80,7 +81,7 @@ if fit_file is not None:
                 efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0, max_value=1.0,
                                                   value=0.04, step=0.01)
                 roll = st.number_input('Smooting:', min_value=0, max_value=30, value=15, step=1)
-            avg_est_power = average_estimated_power(df=df_filtered, rider_weight=rider_weight,
+            avg_est_power = climb_power_estimate(df=df_filtered, rider_weight=rider_weight,
                                                     bike_weight=bike_weight,
                                                     wind_speed=wind_speed, wind_direction=wind_direction,
                                                     temperature=temperature,

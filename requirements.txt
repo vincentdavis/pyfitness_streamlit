@@ -5,4 +5,4 @@ requests_html
 requests
 streamlit
 fitdecode
-pyfitness==0.2.0
+pyfitness==0.2.1
