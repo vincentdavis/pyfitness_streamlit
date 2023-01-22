@@ -4,19 +4,6 @@ import numpy as np
 import pandas as pd
 
 
-def max_climb(df, seconds):
-    """Find the max elevation gain for the given time period"""
-    end_time, end_distance = df.loc[df['altitude'].diff(seconds).idxmax(), ['seconds', 'distance']].values
-    start_time = end_time - seconds
-    start_distance = df.loc[df['seconds'] == start_time, 'distance'].values
-
-    p = ''
-    p += f"{seconds / 60}min: {int(df['altitude'].diff(seconds).max())}m elevation gain over {int(end_distance - start_distance)}m\n"
-    p += f"-- Starting at {int(end_time - seconds)}sec,  start_distance: {int(start_distance)}m\n"
-    p += f"-- Ending at {int(end_time)}sec, end_distance: {int(end_distance)}m"
-    return {'text': p, 'start_time': start_time, 'end_time': end_time}
-
-
 def estimated_power(df: pd.DataFrame, rider_weight: float, bike_weight: float, wind_speed: float, wind_direction: int,
                     temperature: float, drag_coefficient: float, frontal_area: float, rolling_resistance: float,
                     efficiency_loss: float) -> pd.DataFrame:

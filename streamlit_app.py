@@ -1,7 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from pyfitness.load_data import fitfileinfo, fit2df, fit2csv
+from pyfitness.load_data import fitfileinfo, fit2df
 
 st.set_page_config(layout="wide")
 
@@ -23,17 +23,17 @@ def fit_stats(df: pd.DataFrame):
     st.write(df.head(10))
     st.write("Detailed stats of for each fields")
     st.write(df.describe())
-    for field in ['cadence', 'heart_rate', 'power']:
+    for field in ['heart_rate', 'power', 'cadence', 'speed', 'distance', 'altitude', 'temperature']:
         try:
             st.write(f"{field} mean, without zeros: {df[df[field] > 0][field].mean()}")
             st.write(f"{field} max: {df[field].max()}")
             st.write(f"{field} max change: {df[field].diff().max()}")
-            fig = px.histogram(df[df[f"{field}"] > 0], x=f"{field}", nbins=50,
-                               title=f"{field} distribution", histnorm='probability density')
-            st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-            fig = px.histogram(df[df[f"{field}"] > 0][f"{field}"].diff(), nbins=50,
-                               title=f"{field} change distribution", histnorm='probability density')
-            st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+            fig1 = px.histogram(df[df[f"{field}"] > 0], x=f"{field}", nbins=50,
+                                title=f"{field} distribution", histnorm='probability density')
+            st.plotly_chart(fig1, theme="streamlit", use_container_width=True)
+            fig2 = px.histogram(df[df[f"{field}"] > 0][f"{field}"].diff(), nbins=50,
+                                title=f"{field} change distribution", histnorm='probability density')
+            st.plotly_chart(fig2, theme="streamlit", use_container_width=True)
         except Exception as e:
             st.write(f" Error with Field name: {field}\nError:\n{e}.")
 

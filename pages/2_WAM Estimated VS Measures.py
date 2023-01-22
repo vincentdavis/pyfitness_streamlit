@@ -3,9 +3,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from pyfitness.load_data import fit2df
+from pyfitness.statistics import max_climb
 
 # from vam import FitVam
-from vam2 import estimated_power, max_climb, average_estimated_power
+from vam2 import estimated_power, average_estimated_power
 
 """ # Estimated VS Measured: power
 This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
@@ -159,7 +160,8 @@ if fit_file is not None:
                                file_name="est_vs_actual.csv",
                                mime='text/csv')
         except Exception as e:
-            st.write("## Something went wrong. Maybe your fit file does not have what is needed, Take a look here")
+            st.write("## Something went wrong. Maybe your fit file does not have what is needed.")
+            st.write(f"Take a look at the data below and the error in red below that.")
             st.write(f"You can message me on discord [VincentDavis#3484](discordapp.com/users/VincentDavis#3484)")
             st.dataframe(df, use_container_width=True)
             st.error(e)
