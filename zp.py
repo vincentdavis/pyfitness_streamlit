@@ -63,8 +63,9 @@ def fix_columns(df, col):
         # concat df and split_df
         df.drop(col, axis=1, inplace=True)
         return pd.concat([df, split_df], axis=1)
-    except:
+    except Exception as e:
         print(f"Problem converting: {col}")
+        print(e)
         return df
 
 
@@ -98,5 +99,10 @@ def event_results(event_url):
                     analysis=f"https://zwiftpower.com/api3.php?do=analysis_event_list&zwift_event_id={event_id}")
     z = ZwiftLogin()
     results = z.get(api_urls)
+    for name in results.keys():
+        if '_df' in name:
+            for c in results[name].columns:
+                if isinstance(results[name][c][0], list):
+                    results[name] = fix_columns(results[name], c)
     results['event_id'] = event_id
     return results
