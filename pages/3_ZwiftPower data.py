@@ -14,7 +14,7 @@ st.write("This is a work in progress. Please report any issues at [pyfitness_str
 
 
 
-st.write("#### Copy and paste a zwif power event result URL here")
+st.write("#### Copy and paste a zwift power event result URL here")
 st.write("Example: https://zwiftpower.com/events.php?zid=3438615")
 event_url = st.text_input(label="Event URL", placeholder="Event URL")
 if "https://zwiftpower.com/events.php?zid=" in event_url:
