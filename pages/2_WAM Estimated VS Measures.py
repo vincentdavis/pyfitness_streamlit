@@ -2,9 +2,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from pyfitness.dynamics import climb_power_estimate
 from pyfitness.load_data import fit2df
 from pyfitness.statistics import max_climb
-from pyfitness.dynamics import climb_power_estimate
 
 # from vam import FitVam
 from vam2 import estimated_power
@@ -21,7 +21,8 @@ if fit_file is not None:
     required_fields1 = ['power', 'enhanced_altitude', 'distance', 'enhanced_speed']
     required_fields2 = ['power', 'altitude', 'distance', 'speed']
 
-    if not (all([field in df.columns for field in required_fields2]) or not all([field in df.columns for field in required_fields2])):
+    if not (all([field in df.columns for field in required_fields2]) or not all(
+            [field in df.columns for field in required_fields2])):
         st.write(f"### Missing at least 1 required fields")
         st.write(f"power, (enhanced)_altitude, distance, (enhanced)_speed")
         st.write(f"Available fields: {df.columns}")
@@ -72,21 +73,23 @@ if fit_file is not None:
                 wind_direction = st.number_input('Wind direction 0-360:', min_value=0, max_value=360, value=0, step=1)
             with c3:
                 temperature = st.number_input('Temperature C:', min_value=-20, max_value=50, value=20, step=1)
-                drag_coefficient = st.number_input('Drag coefficient:', min_value=0.0, max_value=1.0, value=0.8, step=0.05)
+                drag_coefficient = st.number_input('Drag coefficient:', min_value=0.0, max_value=1.0, value=0.8,
+                                                   step=0.05)
             with c4:
                 frontal_area = st.number_input('Frontal area m^2:', min_value=0.0, max_value=2.0, value=0.565, step=0.1)
                 rolling_resistance = st.number_input('Rolling resistance:', min_value=0.000, max_value=0.1, value=0.005,
                                                      step=0.001, format="%.3f")
             with c5:
-                efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0, max_value=1.0,
+                efficiency_loss = st.number_input('Efficiency: drivetrain, road, ... 0.05 = 5%', min_value=0.0,
+                                                  max_value=1.0,
                                                   value=0.04, step=0.01)
                 roll = st.number_input('Smooting:', min_value=0, max_value=30, value=15, step=1)
             avg_est_power = climb_power_estimate(df=df_filtered, rider_weight=rider_weight,
-                                                    bike_weight=bike_weight,
-                                                    wind_speed=wind_speed, wind_direction=wind_direction,
-                                                    temperature=temperature,
-                                                    drag_coefficient=drag_coefficient, frontal_area=frontal_area,
-                                                    rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
+                                                 bike_weight=bike_weight,
+                                                 wind_speed=wind_speed, wind_direction=wind_direction,
+                                                 temperature=temperature,
+                                                 drag_coefficient=drag_coefficient, frontal_area=frontal_area,
+                                                 rolling_resistance=rolling_resistance, efficiency_loss=efficiency_loss)
 
             fitted = estimated_power(df=df_filtered, rider_weight=rider_weight,
                                      bike_weight=bike_weight,
@@ -125,7 +128,8 @@ if fit_file is not None:
             pvam_fig = go.Figure()
             pvam_fig.update_layout(
                 title='Measured vs Estimated Power')
-            pvam_fig.add_trace(go.Scatter(name="Est. Power", x=fitted['seconds'], y=fitted['est_power'].rolling(roll).mean()))
+            pvam_fig.add_trace(
+                go.Scatter(name="Est. Power", x=fitted['seconds'], y=fitted['est_power'].rolling(roll).mean()))
             pvam_fig.add_trace(go.Scatter(name="Power", x=fitted['seconds'], y=fitted['power'].rolling(roll).mean()))
             pvam_fig.add_trace(go.Scatter(name="Est. Power - acceleration", x=fitted['seconds'],
                                           y=fitted['est_power_no_acc'].rolling(roll).mean()))
@@ -133,7 +137,8 @@ if fit_file is not None:
                 go.Scatter(name="Est. Power (point2point)", x=[start_time, end_time], y=[avg_est_power['est_power'],
                                                                                          avg_est_power['est_power']]))
             pvam_fig.add_trace(
-                go.Scatter(name="Avg Power", x=[start_time, end_time], y=[fitted['power'].mean(), fitted['power'].mean()]))
+                go.Scatter(name="Avg Power", x=[start_time, end_time],
+                           y=[fitted['power'].mean(), fitted['power'].mean()]))
             pvam_fig.add_trace(
                 go.Scatter(name="Avg Est. Power", x=[start_time, end_time],
                            y=[fitted['est_power'].mean(), fitted['est_power'].mean()]))
@@ -148,7 +153,8 @@ if fit_file is not None:
             comp_fig.add_trace(
                 go.Scatter(name="Rolling", x=fitted['seconds'], y=fitted['rolling_watts'].rolling(roll).mean()))
             comp_fig.add_trace(
-                go.Scatter(name="Acceleration", x=fitted['seconds'], y=fitted['acceleration_watts'].rolling(roll).mean()))
+                go.Scatter(name="Acceleration", x=fitted['seconds'],
+                           y=fitted['acceleration_watts'].rolling(roll).mean()))
             pvam_fig.update_layout(
                 title='Components or Estimated VAM Power')
             st.plotly_chart(comp_fig, theme="streamlit", use_container_width=True)
