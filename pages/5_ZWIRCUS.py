@@ -22,9 +22,13 @@ if "https://zwiftpower.com/profile.php?z=" in profile_url:
     st.write("Getting ZwiftPower data, wait for it.... Might take 5-10 seconds")
     results = racer_results(profile_url)
     df = results['results_df']
-    for c in df.columns:
-        if 'wkg' in c and '_2' not in c:
-            st.write(f"{c} max value: {df[c].max()}")
+    wkg_list = {'wkg_ftp': 6.0, 'wkg1200': 100, 'wkg300': 7.19, 'wkg60': 11.04, 'wkg30': 100, 'wkg15': 100, 'wkg5': 22.95}
+    for c, v in wkg_list.items():
+        cmax = df[c].max()
+        if float(cmax) >= float(v):
+            st.write(f"{c} max value: {cmax}, Warning: :red[{cmax} >= {v}]")
+        else:
+            st.write(f"{c} max value: {cmax}, OK: :green[{cmax} < {v}]")
     for name in results.keys():
         if '_df' in name:
             with st.expander(f"Data from {name} api"):
