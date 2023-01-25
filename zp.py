@@ -106,3 +106,43 @@ def event_results(event_url):
                     results[name] = fix_columns(results[name], c)
     results['event_id'] = event_id
     return results
+
+def racer_results(event_url):
+    """Get the results of an event.
+    https://zwiftpower.com/profile.php?z=
+    User profile URLS
+    Main uprofile page
+        https://zwiftpower.com/cache3/profile/110649_all.json
+        https://zwiftpower.com/cache3/profile/110649_rider_compare_victims.json
+    Power Curve
+        https://zwiftpower.com/api3.php?do=critical_power_profile&zwift_id=110649&zwift_event_id=&type=watts
+    ZPoints:
+        https://zwiftpower.com/api3.php?do=profile_zpoints&z=110649
+        https://zwiftpower.com/api3.php?do=profile_zpoints_power&z=110649
+    Courses:
+        https://zwiftpower.com/api3.php?do=course_records&z=110649
+    """
+    try:
+        assert "https://zwiftpower.com/profile.php?z=" in event_url
+    except AssertionError:
+        print("Invalid event URL")
+        return None
+    # parse url
+    profile_id = event_url.split("=")[-1].split("&")[0]
+
+    api_urls = dict(results=f"https://zwiftpower.com/cache3/profile/{profile_id}_all.json",
+                    compare=f"https://zwiftpower.com/cache3/profile/{profile_id}_rider_compare_victims.json",
+                    sprints=f"https://zwiftpower.com/api3.php?do=critical_power_profile&zwift_id={profile_id}&zwift_event_id=&type=watts",
+                    zpoints=f"https://zwiftpower.com/api3.php?do=profile_zpoints&z={profile_id}",
+                    zpoints_power=f"https://zwiftpower.com/api3.php?do=profile_zpoints_power&z={profile_id}",
+                    courses=f"https://zwiftpower.com/api3.php?do=course_records&z={profile_id}")
+
+    z = ZwiftLogin()
+    results = z.get(api_urls)
+    for name in results.keys():
+        if '_df' in name:
+            for c in results[name].columns:
+                if isinstance(results[name][c][0], list):
+                    results[name] = fix_columns(results[name], c)
+    results['profile_id'] = profile_id
+    return results
