@@ -24,7 +24,11 @@ if "https://zwiftpower.com/profile.php?z=" in profile_url:
     df = results['results_df']
     wkg_list = {'wkg_ftp': 6.0, 'wkg1200': 100, 'wkg300': 7.19, 'wkg60': 11.04, 'wkg30': 100, 'wkg15': 100, 'wkg5': 22.95}
     for c, v in wkg_list.items():
-        cmax = df[c].max()
+        try:
+            cmax = df[c].max()
+        except Exception as e:
+            cmax = 0
+            print(e)
         if float(cmax) >= float(v):
             st.write(f"{c} max value: {cmax}, Warning: :red[{cmax} >= {v}]")
         else:
