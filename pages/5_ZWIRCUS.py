@@ -1,9 +1,10 @@
 import json
 
+import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from PIL import Image
-import numpy as np
 
 from zp import racer_results
 
@@ -21,53 +22,73 @@ st.write("Paste the zwiftpower url for a rider below")
 st.write("Example: https://zwiftpower.com/profile.php?zid=1234567890")
 profile_url = st.text_input(label="PROFILE URL", placeholder="PROFILE URL")
 if "https://zwiftpower.com/profile.php?z=" in profile_url:
-
+    # Get the zwiftpower data
     st.write("Getting ZwiftPower data, wait for it.... Might take 5-10 seconds")
     results = racer_results(profile_url)
     df = results['results_df']
-    # rank = {"HC": (100, 24.04),
-    #         5: {name: "World class: international pro", 5: (24.04, 22.14) ,
-    #         "Exceptional: domestic pro": }
-    wkg_list = {'wkg_ftp': 6.0, 'wkg1200': 100, 'wkg300': 7.19, 'wkg60': 11.04, 'wkg30': 100, 'wkg15': 100,
-                'wkg5': 22.95, 'avg_wkg': 100}
-    for c, v in wkg_list.items():
+    gender_convert = {1: 'Male_WKG', 0: 'Female_WKG'}
+    gender = gender_convert[df['male'].iloc[0]]
+
+    cf = pd.read_csv('data/coggan_factors.csv')
+
+    wkg_list = ['wkg_ftp', 'wkg1200', 'wkg300', 'wkg60', 'wkg30', 'wkg15', 'wkg5']  # did not include 'avg_wkg'
+    x = [3600, 1200, 300, 60, 30, 15, 5]
+    # colors = px.colors.qualitative.Plotly
+    colors = px.colors.sequential.Greys
+
+    # WKG and Coggan Levels
+
+    # wkg_curve = px.area(cf, x="time", y=f"{gender}_WKG", color="Level", title="WKG and Coggan Levels")
+
+    wkg_curve = go.Figure()
+    wkg_curve.update_layout(title='WKG and Coggan Levels',
+                            height=700,
+                            )
+    for i, w in enumerate(cf.Level.unique()):
+        c = cf[cf.Level == w]
+        wkg_curve.add_trace(go.Scatter(name=f"{w}", x=c['time'], y=c[gender], mode='lines', fill='tonexty',
+                                       line_color=colors[-i]))
+    wkg_curve.add_trace(
+        go.Scatter(name=f"Ahlete's WKG", x=x, y=df[wkg_list].max(), mode='lines', line_color='blue'))
+    st.plotly_chart(wkg_curve, theme="streamlit", use_container_width=True)
+
+    # WKG and Coggan Levels
+
+    for c in wkg_list:
         try:
             cmax = df[c].max()
         except Exception as e:
             cmax = 0
             print(e)
-        if float(cmax) >= float(v):
-            st.write(f"{c} max value: {cmax}, Warning: :red[{cmax} >= {v}]")
-        else:
-            st.write(f"{c} max value: {cmax}, OK: :green[{cmax} < {v}]")
-    #### Historical WKG
-    wkg_curve = go.Figure()
-    wkg_curve.update_layout(
-        title='Historical WKG')
-    df_sorted = df.sort_values('event_date')
-    for c in wkg_list.keys():
-        wkg_curve.add_trace(
-            go.Scatter(name=f"{c}", x=df_sorted['event_date'], y=df_sorted[c]))
-    st.plotly_chart(wkg_curve, theme="streamlit", use_container_width=False)
+        st.write(f"{c} max value: {cmax}")
 
-    #### Historical WKG/HR
-    wkg_hr = go.Figure()
-    wkg_hr.update_layout(
-        title='Historical WKG/HR')
-    for c in wkg_list.keys():
-        try:
-            # print(df[[c, 'avg_hr']].dtypes)
-            df[c] = df[c].replace('', np.nan)
-            df[c] = df[c].astype(float)
-            df_sorted = df[(df[c]>0) & (df['avg_hr']>0)].sort_values('event_date')
-            df_sorted[f"{c}_hr"] = df_sorted[c] / df_sorted['avg_hr']
-            wkg_hr.add_trace(
-                go.Scatter(name=f"{c}", x=df_sorted['event_date'], y=df_sorted[f"{c}_hr"]))
-        except Exception as e:
-            print(e)
-            print(f"Error with {c}")
-    st.plotly_chart(wkg_hr, theme="streamlit", use_container_width=False)
+    # #### Historical WKG
+    # wkg_hist = go.Figure()
+    # wkg_hist.update_layout(
+    #     title='Historical WKG')
+    # df_sorted = df.sort_values('event_date')
+    # for c in wkg_list:
+    #     wkg_curve.add_trace(
+    #         go.Scatter(name=f"{c}", x=df_sorted['event_date'], y=df_sorted[c]))
+    # st.plotly_chart(wkg_hist, theme="streamlit", use_container_width=False)
 
+    # #### Historical WKG/HR
+    # wkg_hr = go.Figure()
+    # wkg_hr.update_layout(
+    #     title='Historical WKG/HR')
+    # for c in wkg_list:
+    #     try:
+    #         # print(df[[c, 'avg_hr']].dtypes)
+    #         df[c] = df[c].replace('', np.nan)
+    #         df[c] = df[c].astype(float)
+    #         df_sorted = df[(df[c]>0) & (df['avg_hr']>0)].sort_values('event_date')
+    #         df_sorted[f"{c}_hr"] = df_sorted[c] / df_sorted['avg_hr']
+    #         wkg_hr.add_trace(
+    #             go.Scatter(name=f"{c}", x=df_sorted['event_date'], y=df_sorted[f"{c}_hr"]))
+    #     except Exception as e:
+    #         print(e)
+    #         print(f"Error with {c}")
+    # st.plotly_chart(wkg_hr, theme="streamlit", use_container_width=False)
 
     for name in results.keys():
         if '_df' in name:
