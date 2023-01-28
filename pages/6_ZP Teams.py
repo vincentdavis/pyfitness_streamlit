@@ -1,7 +1,8 @@
 from time import sleep
-import streamlit as st
-import numpy as np
+
 import pandas as pd
+import streamlit as st
+
 from zp import team_list, team_members
 
 st.title("ZP Team List")
@@ -13,8 +14,8 @@ Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavi
 You can also contact me on discord: [Vincent](discordapp.com/users/VincentDavis#3484)
 """
 teams = team_list()
-df= teams['teams_df']
-df['riders'] = df['riders'].apply(pd.to_numeric, errors = 'coerce')
+df = teams['teams_df']
+df['riders'] = df['riders'].apply(pd.to_numeric, errors='coerce')
 # df.riders.replace('', np.NaN, inplace=True)
 df.sort_values('riders', ascending=False, inplace=True)
 st.dataframe(teams['teams_df'])
@@ -43,9 +44,3 @@ st.write(f"Only listing riders on more then 1 team")
 dt = pd.DataFrame(riders_teams.values())
 dt['team_count'] = dt.teams.apply(lambda x: len(x))
 st.dataframe(dt.loc[dt['team_count'] > 1])
-
-
-
-
-
-

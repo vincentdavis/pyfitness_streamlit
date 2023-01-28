@@ -26,7 +26,7 @@ class ZwiftLogin(object):
         self.login_data = {}
         self.login_data.update(st.secrets['zwiftpower'])
 
-    def get(self, api_urls:dict, content=False) -> dict:
+    def get(self, api_urls: dict, content=False) -> dict:
         session = HTMLSession()
         z = session.get('https://zwiftpower.com')
         logging.info(z.cookies.get('phpbb3_lswlk_sid'))
@@ -107,6 +107,7 @@ def event_results(event_url):
     results['event_id'] = event_id
     return results
 
+
 def racer_results(event_url):
     """Get the results of an event.
     https://zwiftpower.com/profile.php?z=
@@ -147,6 +148,7 @@ def racer_results(event_url):
     results['profile_id'] = profile_id
     return results
 
+
 def team_list():
     """Get the list of teams
     https://zwiftpower.com/api3.php?do=team_list
@@ -155,6 +157,7 @@ def team_list():
     z = ZwiftLogin()
     results = z.get(api_urls)
     return results
+
 
 def team_members(team_id):
     """Get the list of team members
@@ -165,10 +168,9 @@ def team_members(team_id):
     results = z.get(api_url)
     return results
 
-def team_overlap_by_rider(depth=20):
-    """Compare team members
-    """
-    results = 'pass'
-
-    return results
-
+# def team_overlap_by_rider(depth=20):
+#     """Compare team members
+#     """
+#     results = 'pass'
+#
+#     return results
