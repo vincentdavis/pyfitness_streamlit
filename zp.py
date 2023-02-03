@@ -1,13 +1,16 @@
 # import datetime
 # from bs4 import BeautifulSoup
+import json
 import logging
 from time import sleep
 
-logging.basicConfig(filename='fetcher.log', level=logging.ERROR)
+# logging.basicConfig(filename='zp.log', level=logging.ERROR)
 from requests_html import HTMLSession
+
 
 import pandas as pd
 import streamlit as st
+import s3fs
 import requests
 
 
@@ -29,21 +32,21 @@ class ZwiftLogin(object):
     def get(self, api_urls: dict, content=False) -> dict:
         session = HTMLSession()
         z = session.get('https://zwiftpower.com')
-        logging.info(z.cookies.get('phpbb3_lswlk_sid'))
+        # logging.info(z.cookies.get('phpbb3_lswlk_sid'))
         self.login_data['sid'] = z.cookies.get('phpbb3_lswlk_sid')
         if "Login Required" in z.text:  # get logged in
             try:
                 session.post("https://zwiftpower.com", data=self.login_data)
                 assert "Profile" in session.get("https://zwiftpower.com/events.php").text
                 # print('login success')
-                logging.info('Login successful')
+                # logging.info('Login successful')
             except Exception as e:
                 print('Login error')
-                logging.error(f"Failed to login: {e}")
+                # logging.error(f"Failed to login: {e}")
             data = {}
             for name, url in api_urls.items():
                 response = session.get(url)
-                logging.info("Status", response.status_code)
+                # logging.info("Status", response.status_code)
                 try:
                     res = response.json()
                     data[f"{name}_json"] = res
@@ -124,7 +127,7 @@ def racer_results(event_url):
         https://zwiftpower.com/api3.php?do=course_records&z=110649
     """
     try:
-        assert "https://zwiftpower.com/profile.php?z=" in event_url
+        assert "https://zwiftpower.com/profile.php?z" in event_url
     except AssertionError:
         print("Invalid event URL")
         return None
@@ -147,30 +150,3 @@ def racer_results(event_url):
                     results[name] = fix_columns(results[name], c)
     results['profile_id'] = profile_id
     return results
-
-
-def team_list():
-    """Get the list of teams
-    https://zwiftpower.com/api3.php?do=team_list
-    """
-    api_urls = {'teams': "https://zwiftpower.com/api3.php?do=team_list"}
-    z = ZwiftLogin()
-    results = z.get(api_urls)
-    return results
-
-
-def team_members(team_id):
-    """Get the list of team members
-    https://zwiftpower.com/api3.php?do=team_riders&id=2707
-    """
-    api_url = {'members': f"https://zwiftpower.com/api3.php?do=team_riders&id={team_id}"}
-    z = ZwiftLogin()
-    results = z.get(api_url)
-    return results
-
-# def team_overlap_by_rider(depth=20):
-#     """Compare team members
-#     """
-#     results = 'pass'
-#
-#     return results

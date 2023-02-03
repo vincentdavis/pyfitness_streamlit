@@ -21,7 +21,8 @@ st.write("#### WKG and Coggan Levels")
 st.write("Paste the zwiftpower url for a rider below")
 st.write("Example: https://zwiftpower.com/profile.php?zid=1234567890")
 profile_url = st.text_input(label="PROFILE URL", placeholder="PROFILE URL")
-if "https://zwiftpower.com/profile.php?z=" in profile_url:
+
+if "https://zwiftpower.com/profile.php?zid=" in profile_url:
     # Get the zwiftpower data
     st.write("Getting ZwiftPower data, wait for it.... Might take 5-10 seconds")
     results = racer_results(profile_url)
@@ -48,8 +49,11 @@ if "https://zwiftpower.com/profile.php?z=" in profile_url:
         c = cf[cf.Level == w]
         wkg_curve.add_trace(go.Scatter(name=f"{w}", x=c['time'], y=c[gender], mode='lines', fill='tonexty',
                                        line_color=colors[-i]))
+    wkg_max = {'wkg_ftp': 0, 'wkg1200': 0, 'wkg300': 0, 'wkg60': 0, 'wkg30': 0, 'wkg15': 0, 'wkg5': 0}
+    wkg_max.update(df[wkg_list].max().to_dict())
+    print(wkg_max)
     wkg_curve.add_trace(
-        go.Scatter(name=f"Ahlete's WKG", x=x, y=df[wkg_list].max(), mode='lines', line_color='blue'))
+        go.Scatter(name=f"Athlete's WKG", x=x, y=list(wkg_max.values()), mode='lines', line_color='blue'))
     st.plotly_chart(wkg_curve, theme="streamlit", use_container_width=True)
 
     # WKG and Coggan Levels
