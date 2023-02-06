@@ -22,7 +22,7 @@ st.write("Paste the zwiftpower url for a rider below")
 st.write("Example: https://zwiftpower.com/profile.php?zid=1234567890")
 profile_url = st.text_input(label="PROFILE URL", placeholder="PROFILE URL")
 
-if "https://zwiftpower.com/profile.php?zid=" in profile_url:
+if "https://zwiftpower.com/profile.php?z=" in profile_url:
     # Get the zwiftpower data
     st.write("Getting ZwiftPower data, wait for it.... Might take 5-10 seconds")
     results = racer_results(profile_url)
