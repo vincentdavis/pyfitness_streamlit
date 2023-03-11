@@ -6,4 +6,5 @@ requests
 streamlit
 fitdecode
 # s3fs
-pyfitness==0.2.1
+# pyfitness==0.2.1
+git+https://github.com/vincentdavis/pyfitness.git
