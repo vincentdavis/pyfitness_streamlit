@@ -10,7 +10,7 @@ from requests_html import HTMLSession
 
 import pandas as pd
 import streamlit as st
-import s3fs
+# import s3fs
 import requests
 
 
