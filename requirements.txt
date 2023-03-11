@@ -5,5 +5,5 @@ requests_html
 requests
 streamlit
 fitdecode
-s3fs
+# s3fs
 pyfitness==0.2.1
