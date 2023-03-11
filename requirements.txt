@@ -5,5 +5,5 @@ numpy
 requests_html
 requests
 fitdecode
-# s3f
+s3fs==2023.3.0
 pyfitness
