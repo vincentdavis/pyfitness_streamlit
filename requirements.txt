@@ -1,9 +1,9 @@
+streamlit
 plotly
-pandas
-numpy
+pandas==1.5.2
+numpy==1.24.1
 requests_html
 requests
-streamlit
 fitdecode
 # s3fs
 # pyfitness==0.2.1
