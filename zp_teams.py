@@ -71,13 +71,14 @@ def team_refresh():
         sleep(.5)
 
 
-def team_overlap_by_rider(team_df: pd.DataFrame, include: int = None, depth: int = 20) -> dict:
+def team_overlap_by_rider(team_df: pd.DataFrame, include: list = None, depth: int = 5) -> dict:
     riders = {}
     riders_teams = {}
+    print(team_df)
     teams = team_df.iloc[0:depth].to_dict('records')  # How many team to look at
     if include is not None:
-        teams.update(team_df.iloc[team_df['team_id'] == include].to_dict('records'))
-    for t in team_df.iloc[0:depth].to_dict('records'):
+        teams += team_df[team_df['team_id'].isin(include)].to_dict('records')
+    for t in teams:
         st.write(f"Getting rider list for {t['tln']}")
         members = team_riders(t['team_id'])
         st.write(f"- {t['tln']} as {len(members['team_riders_df'])} members")
