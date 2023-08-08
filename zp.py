@@ -173,7 +173,12 @@ def results_frr(view_results: pd.DataFrame, zwift_results: pd.DataFrame) -> pd.D
         columns=[c for c in zwift_results.columns if c not in ["name", "zwid"]],
         inplace=True,
     )
-    zwift_results.rename(columns={"name": "Event Name"}, inplace=True)
+    zwift_results.rename(
+        columns={
+            "name": "ZWIFT_NAME",
+        },
+        inplace=True,
+    )
     results = view_results.merge(zwift_results, on="zwid", how="left")
     results.rename(
         columns={
@@ -185,6 +190,7 @@ def results_frr(view_results: pd.DataFrame, zwift_results: pd.DataFrame) -> pd.D
             "avg_power": "WATT",
             "np": "NP WATT",
             "avg_wkg": "WKG",
+            "name": "VIEW_NAME",
         },
         inplace=True,
     )
@@ -198,6 +204,8 @@ def results_frr(view_results: pd.DataFrame, zwift_results: pd.DataFrame) -> pd.D
         "NP WATT",
         "WKG",
         "id",
+        "VIEW_NAME",
+        "ZWIFT_NAME",
     ]
     results.drop(columns=[c for c in results.columns if c not in keep], inplace=True)
     return results
