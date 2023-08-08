@@ -7,3 +7,6 @@ requests
 fitdecode
 s3fs==2023.3.0
 pyfitness
+ruff==0.0.282
+black==23.7.0
+# watchdog==3.0.0

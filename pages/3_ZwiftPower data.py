@@ -4,7 +4,7 @@ import streamlit as st
 
 from zp import event_results
 
-"""## Get ZwiftPower data")
+"""## Get ZwiftPower data
 This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)
 
 You can also contact me on discord: [Vincent](discordapp.com/users/VincentDavis#3484
@@ -28,12 +28,12 @@ if "https://zwiftpower.com/events.php?zid=" in event_url:
                 with c1:
                     st.download_button(label="Download csv file",
                                        data=results[name].to_csv(index=False).encode('utf-8'),
-                                       file_name=f"Event_ID){results['event_id']}_{name.replace('_df', '')}.csv",
+                                       file_name=f"Event_ID_{results['event_id']}_{name.replace('_df', '')}.csv",
                                        mime='text/csv')
                 with c2:
                     st.download_button(label="Download json file",
                                        data=json.dumps(results[f"{name.replace('df', 'json')}"]).encode('utf-8'),
-                                       file_name=f"Event_ID){results['event_id']}_{name.replace('_df', '')}.json",
+                                       file_name=f"Event_ID_{results['event_id']}_{name.replace('_df', '')}.json",
                                        mime='text/json')
 
                 st.dataframe(results[name])
