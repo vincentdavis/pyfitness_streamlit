@@ -195,17 +195,17 @@ def results_frr(view_results: pd.DataFrame, zwift_results: pd.DataFrame) -> pd.D
         inplace=True,
     )
     keep = [
+        "id",
+        "ZEVENT",
+        "VIEW_NAME",
+        "ZWIFT_NAME",
+        "ZWID",
         "PEN",
         "Pen position",
-        "ZWID",
-        "ZEVENT",
         "Stage Time",
         "WATT",
         "NP WATT",
         "WKG",
-        "id",
-        "VIEW_NAME",
-        "ZWIFT_NAME",
     ]
-    results.drop(columns=[c for c in results.columns if c not in keep], inplace=True)
+    results = results[keep]
     return results
