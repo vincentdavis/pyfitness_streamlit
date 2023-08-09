@@ -14,10 +14,16 @@ st.write(
     "This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)"
 )
 
-
+try:
+    params = st.experimental_get_query_params()
+    event_url = f"https://zwiftpower.com/events.php?zid={params['zid'][0]}"
+except:
+    event_url = None
+print(event_url)
 st.write("#### Copy and paste a zwift power event result URL here")
 st.write("Example: https://zwiftpower.com/events.php?zid=3438615")
-event_url = st.text_input(label="Event URL", placeholder="Event URL")
+if event_url is None:
+    event_url = st.text_input(label="Event URL", placeholder="Event URL")
 if "https://zwiftpower.com/events.php?zid=" in event_url:
     # st.write(f"is {event_url is not None}")
     st.write("Getting ZwiftPower data, wait for it.... Might take 5-10 seconds")
