@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 .streamlit/secrets.toml
 .idea
+.DS_Store

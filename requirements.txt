@@ -1,12 +1,16 @@
-streamlit
-plotly
-pandas
-numpy
-requests_html
-requests
-fitdecode
-s3fs==2023.3.0
-pyfitness
-ruff==0.0.282
-black==23.7.0
-# watchdog==3.0.0
+streamlit==1.30.0
+st-pages==0.4.5
+pyppeteer==1.0.2
+plotly==5.18.0
+pandas==2.2.0
+numpy==1.26.3
+# requests_html==0.10.0
+git+https://github.com/psf/requests-html
+requests==2.31.0
+fitdecode==0.10.0
+s3fs==2023.12.2
+pyfitness==0.2.1
+ruff==0.1.14
+black==23.12.1
+watchdog==3.0.0
+pur==7.3.1
