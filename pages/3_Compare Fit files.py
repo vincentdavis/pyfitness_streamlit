@@ -37,11 +37,6 @@ with col1:
     fit_buffer_1 = st.file_uploader("Upload a FIT file", type=["fit", "FIT"], key="fit_file1")
     if fit_buffer_1 is not None:
         fit_file1 = fit_buffer_1.getbuffer()
-        # Provide a CSV download option
-        # st.download_button(label="Download FIT file as CSV",
-        #                    data=fit_file1.to_csv(index=False).encode('utf-8'),
-        #                    file_name="fit_file1.csv",
-        #                    mime='text/csv')
 
         with st.expander("Expand file details"):
             if fit_file1 is not None:

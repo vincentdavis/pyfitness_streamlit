@@ -1,54 +1,36 @@
 import json
 
+import pandas as pd
 import streamlit as st
+from pyfitness.load_data import fit2df
 
 from zp import event_results
 
 """### This page has been moved to [ZwiftToCSV](https://zwifttocsv.streamlit.app) with more data and features.
 
 You can also contact me on discord: [vincent.davis](discordapp.com/users/Vincent.Davis)
+
+Instantanious Intensity Factor (IIF) is used to simulate instantanious normilized power. It is calculated by (power/ftp)^(IFP)
+
+For example, IF^4 
+
 """
-# st.write("Enter the api url, see browser developer tools")
-# st.write(
-#     "This is a work in progress. Please report any issues at [pyfitness_streamlit](https://github.com/vincentdavis/pyfitness_streamlit)"
-# )
-#
-# try:
-#     params = st.experimental_get_query_params()
-#     event_url = f"https://zwiftpower.com/events.php?zid={params['zid'][0]}"
-#     data = params["data"][0]  # view, zwift, sprints, primes, analysis frr_df
-# except:
-#     event_url = None
-#     data = None
-# print(event_url)
-# st.write("#### Copy and paste a zwift power event result URL here")
-# st.write("Example: https://zwiftpower.com/events.php?zid=3438615")
-# if event_url is None:
-#     event_url = st.text_input(label="Event URL", placeholder="Event URL")
-# if "https://zwiftpower.com/events.php?zid=" in event_url:
-#     # st.write(f"is {event_url is not None}")
-#     st.write("Getting ZwiftPower data, wait for it.... Might take 5-10 seconds")
-#     results = event_results(event_url)
-#     for name in results.keys():
-#         if "_df" in name:
-#             with st.expander(f"Data from {name} api"):
-#                 c1, c2 = st.columns(2)
-#                 with c1:
-#                     st.download_button(
-#                         label="Download csv file",
-#                         data=results[name].to_csv(index=False).encode("utf-8"),
-#                         file_name=f"Event_ID_{results['event_id']}_{name.replace('_df', '')}.csv",
-#                         mime="text/csv",
-#                     )
-#                 with c2:
-#                     if not "frr" in name:
-#                         st.download_button(
-#                             label="Download json file",
-#                             data=json.dumps(results[f"{name.replace('df', 'json')}"]).encode("utf-8"),
-#                             file_name=f"Event_ID_{results['event_id']}_{name.replace('_df', '')}.json",
-#                             mime="text/json",
-#                         )
-#                     else:
-#                         st.write("No json file for frr")
-#
-#                 st.dataframe(results[name])
+
+with st.form("Efficiency Analisys form"):
+    st.text("If uploading a csv file it should have the standard columns namees that would be found in a FIT file.")
+    fit_buffer = st.file_uploader("Upload a FIT or csv file", type=["fit", "FIT, csv"], key="fit_file")
+    ftp = st.number_input(label="Your FTP", value=250, key="ftp")
+    kg = st.number_input(label="Your weight in kg", value=70, key="kg")
+    ifp = st.number_input(label="Intesity factor ^ power (IFP)", value=4, key="ifp")
+    submit_button = st.form_submit_button(label="Submit")
+
+
+if submit_button:
+    with st.spinner("Processing..."):
+        fit_file = fit_buffer.getbuffer()
+        df = fit2df(fit_file)
+        df["IIF"] = df["power"] * (df["power"]/ftp)**ifp
+        df["IFF_force"] = df['distance']/df["IIF"]
+        df["IFF_power"] = df['speed'] / df["IIF"]
+    st.dataframe(df[['distance', 'speed', "IFF_force", "IFF_power"]])
+
