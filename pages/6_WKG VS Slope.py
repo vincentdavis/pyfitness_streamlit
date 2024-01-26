@@ -88,7 +88,7 @@ with st.form("Tradeoff_Form"):
     bike_1 = r1_cols[0].number_input(
         label="Bike Weight in kg", value=10.0, min_value=0.0, max_value=20.0, step=0.1, key="bike1"
     )
-    r1_cols[0].text("Leave at zero to automatically estimate Frontal Area [m²]")
+    # r1_cols[0].text("Leave at zero to automatically estimate Frontal Area [m²]")
     front_area_1 = r1_cols[0].number_input(
         label="Frontal Area [m²]", value=0.423, min_value=0.0, max_value=1.0, key="front_area1"
     )
@@ -104,9 +104,9 @@ with st.form("Tradeoff_Form"):
     bike_2 = r1_cols[1].number_input(
         label="Bike Weight in kg", value=10.0, min_value=0.0, max_value=20.0, step=0.1, key="bike2"
     )
-    r1_cols[1].text("Leave at zero to automatically estimate Frontal Area [m²]")
+    # r1_cols[1].text("Leave at zero to automatically estimate Frontal Area [m²]")
     front_area_2 = r1_cols[1].number_input(
-        label="Frontal Area [m²]", value=0.423, min_value=0.0, max_value=1.0, step=0.01, key="front_area2"
+        label="Frontal Area [m²]", value=0.46, min_value=0.0, max_value=1.0, step=0.01, key="front_area2"
     )
 
     submit_button = st.form_submit_button(label="Submit")
