@@ -1,7 +1,6 @@
 from math import exp, radians
 
 import numpy as np
-from scipy.optimize import fsolve
 
 
 class Dynamics:
@@ -71,10 +70,3 @@ class Dynamics:
         balance = self.power - total_watts
 
         return balance
-
-
-if __name__ == "__main__":
-    s = Dynamics()
-    s = fsolve(s.calc_speed, 5)
-    print(s)
-    print(np.sin(np.arctan(-30 / 100)) * 9.8067 * 70)
