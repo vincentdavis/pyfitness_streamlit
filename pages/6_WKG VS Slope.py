@@ -9,8 +9,8 @@ from dynamics import Dynamics
 ## Comparing the tradeoff between riders of different size with drafting and climbing.
 Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 
-## Senerios:
-### Compare tradeoff between w/kg as slope goes from -30% to +30%
+## Scenarios:
+### Compare tradeoff between w/kg as slope changes. Slope can range from -30% to +30%
 - Implemented
 
 ### Two rider race without drafting
@@ -24,7 +24,7 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - Temperature [°C]: 20.0 °C
 - Windspeed [m/s]: Fixed to 0 for no wind	0.0 m/s
 - Wind Angle [°] 0.0 ° (0=Headwind, 90=Crosswind, 180=Tailwind)
-- Drag Coefficent [Cd]:	0.800
+- Drag Coefficient [Cd]:	0.800
 - Drivetrain Losses [%]	4 %
 - Coefficient of rolling resistance	0.005
 - Drafting effect: This is the percentage reduction of Air Drag. 0% is no drafting, 100% is perfect drafting.
@@ -67,7 +67,13 @@ with st.form("Tradeoff_Form"):
         label="Coefficient of rolling resistance", value=0.005, min_value=0.000, max_value=0.05, step=0.001
     )
     frontal_area_base = setup_cols[1].number_input(
-        label="Frontal Area base: [m²]", value=0.423, min_value=0.0, max_value=1.0, step=0.01
+        label="Frontal Area base: [m² (Not used)]", value=0.423, min_value=0.0, max_value=1.0, step=0.01
+    )
+    start_slope = setup_cols[0].number_input(
+        label="Starting Slope [%]", value=-10, min_value=-30, max_value=29, step=1, key="start_slope"
+    )
+    end_slope = setup_cols[1].number_input(
+        label="Starting Slope [%]", value=10, min_value=-30, max_value=30, step=1, key="end_slope"
     )
 
     r1_cols = st.columns(2)
@@ -77,7 +83,7 @@ with st.form("Tradeoff_Form"):
         label="Weight in [kg]", value=60.0, min_value=0.0, max_value=300.0, step=0.1, key="kg1"
     )
     height_1 = r1_cols[0].number_input(
-        label="Height in [cm]", value=175.0, min_value=100.0, max_value=250.0, step=0.1, key="height1"
+        label="Height in [cm] (Not used)", value=175.0, min_value=100.0, max_value=250.0, step=0.1, key="height1"
     )
     bike_1 = r1_cols[0].number_input(
         label="Bike Weight in kg", value=10.0, min_value=0.0, max_value=20.0, step=0.1, key="bike1"
@@ -93,7 +99,7 @@ with st.form("Tradeoff_Form"):
         label="Weight in [kg]", value=75.0, min_value=0.0, max_value=300.0, step=0.1, key="kg2"
     )
     height_2 = r1_cols[1].number_input(
-        label="Height in [cm]", value=180.0, min_value=100.0, max_value=250.0, step=0.1, key="height2"
+        label="Height in [cm] (Not used)", value=180.0, min_value=100.0, max_value=250.0, step=0.1, key="height2"
     )
     bike_2 = r1_cols[1].number_input(
         label="Bike Weight in kg", value=10.0, min_value=0.0, max_value=20.0, step=0.1, key="bike2"
@@ -108,7 +114,6 @@ with st.form("Tradeoff_Form"):
 
 if submit_button:
     with st.spinner("Processing..."):
-        st.write("Rider 1")
         rd1 = Dynamics(
             kg=kg_1,
             power=power_1,
@@ -142,16 +147,23 @@ if submit_button:
 
         points = []
         # print("#####")
-        for slope in range(-20, 21):
+        for slope in range(start_slope, end_slope + 1):
             rd1.slope = slope / 100
             rd2.slope = slope / 100
             r1_speed = fsolve(rd1.calc_speed, 20)[0]
             r2_speed = fsolve(rd2.calc_speed, 20)[0]
             points.append([slope, r1_speed, r2_speed])
-        df = pd.DataFrame(points, columns=["slope", "speed_rider_1", "speed_rider_2"])
+        st.markdown("### Results")
+        column_names = ["slope", f"Rider 1: {round(power_1/kg_1, 1)}wkg", f"Rider 2 {round(power_2/kg_2, 1)}wkg"]
+        df = pd.DataFrame(points, columns=column_names)
         st.dataframe(df)
 
         plot1 = px.line(
-            df, x="slope", y=["speed_rider_1", "speed_rider_2"], labels={"value": "Speed kph"}, title="slope vs speed"
+            df,
+            x="slope",
+            y=[column_names[1], column_names[2]],
+            labels={"value": "Speed kph"},
+            title="SLOPE VS SPEED",
         )
+        print(plot1)
         st.plotly_chart(plot1, theme="streamlit", use_container_width=True)
