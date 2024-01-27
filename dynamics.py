@@ -1,6 +1,8 @@
 from math import exp, pi, radians
 
 import numpy as np
+import pandas as pd
+from scipy.optimize import fsolve
 
 
 def estimate_frontal_area(kg, height, tt=False):
@@ -89,3 +91,59 @@ class Dynamics:
         balance = self.power - total_watts
 
         return balance
+
+    def race_course(
+        self,
+        seg_1: float = 0,
+        seg_1_slope: float = 0,
+        seg_2: float = 0,
+        seg_2_slope: float = 0,
+        seg_3: float = 0,
+        seg_3_slope: float = 0,
+        seg_4: float = 0,
+        seg_4_slope: float = 0,
+        seg_5: float = 0,
+        seg_5_slope: float = 0,
+    ) -> pd.DataFrame:
+        """
+        - Define course Each segment can be 0km in length
+            1. Segment 1 [km]
+            2. Segment 1 slope [%] (negative to decend)
+            3. segment 2 [km]
+            4. segment 2 slope [%] (negative to decend)
+            5. segment 3 [km]
+            6. segment 3 slope [%] (negative to decend)
+            7. segment 4 [km]
+            8. segment 4 slope [%] (negative to decend)
+            9. segment 5 [km]
+            10. segment 5 slope [%] (negative to decend)
+        - If you set the drafting effect > 0, this is like assuming the rider is drafting another rider.
+        - This is a static model, ignores energy to change speed
+        - The speed is calculated every 1 meter.
+        - Calculated speed is used to calculate the time to travel the next meter.
+        """
+        distance = seg_1 + seg_2 + seg_3 + seg_4 + seg_5
+        course = []
+        for i, seg in enumerate(
+            (
+                (seg_1, seg_1_slope),
+                (seg_2, seg_2_slope),
+                (seg_3, seg_3_slope),
+                (seg_4, seg_4_slope),
+                (seg_5, seg_5_slope),
+            )
+        ):
+            n = i + 1
+            seg = [(f"seg_{n}", p, seg[1]) for p in range(0, int(seg[0] * 1000) + 1)]
+            course += seg
+
+        def _calc_speed_with_slope(slope):
+            self.slope = slope / 100
+            return fsolve(self.calc_speed, 5)[0] * 3.6
+
+        df = pd.DataFrame(course, columns=["segment", "segment_point", "slope"])
+        df["distance"] = df.segment_point.cumsum()
+        df["speed"] = df.slope.apply(_calc_speed_with_slope)
+        df["segment_time"] = (df.speed / 3600) / 1000
+        df["elapsed_time"] = df.segment_time.cumsum()
+        return df
