@@ -14,7 +14,6 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - Two riders of different size and power output.
 - Shows the performance (speed) differance between the two riders on a given slope.
 
-
 ### Two rider race without drafting
 - Not implemented
 
@@ -31,12 +30,11 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - Coefficient of rolling resistance	0.005
 - Drafting effect: Air_drag_watts * (1-10/100) for 10% drafting
 - Weight [kg]	70.0 kg Default rider weight
-- Frontal Area [m²]	0.565 m² (climbing): Estimates based on height * pi * r^2 with r = 0.006894270128795239*(weight/height).
+- Frontal Area [m²]	0.565 m² (climbing): Estimate = height * pi * r^2 with r = 0.006894270128795239*(weight/height).
 - Bike and Accessories Weight [kg]	10.0 kg
 
 #### Future work:
 - Consider Temperature as it related to rider size and the ability to dissipate heat. Need Reference.
-- Add better Frontal Area calculations
 - Add TSS, IF and other metrics and limited related to riders ftp.
 - add Wind Direction
 - ...
@@ -121,6 +119,8 @@ with st.form("Tradeoff_Form"):
 
     submit_button = st.form_submit_button(label="Submit")
 
+############################################################################################################
+
 if front_area_1 == 0:
     tt = est_front_method == "Aero"
     front_area_1 = estimate_frontal_area(kg_1, height_1, tt)
@@ -176,6 +176,7 @@ if submit_button:
         st.markdown("### Results")
         column_names = ["slope", f"Rider 1: {round(power_1/kg_1, 1)}wkg", f"Rider 2 {round(power_2/kg_2, 1)}wkg"]
         df = pd.DataFrame(points, columns=column_names)
+        df["Rider 1 - Rider 2"] = df[column_names[1]] - df[column_names[2]]
         st.dataframe(df)
 
         plot1 = px.line(
@@ -184,6 +185,16 @@ if submit_button:
             y=[column_names[1], column_names[2]],
             labels={"value": "Speed kph"},
             title="SLOPE VS SPEED",
+        )
+        print(plot1)
+        st.plotly_chart(plot1, theme="streamlit", use_container_width=True)
+
+        plot1 = px.line(
+            df,
+            x="slope",
+            y="Rider 1 - Rider 2",
+            labels={"Rider 1 - Rider 2": "Rider 1 - Rider 2 kph"},
+            title="SLOPE VS Difference in Speed",
         )
         print(plot1)
         st.plotly_chart(plot1, theme="streamlit", use_container_width=True)
