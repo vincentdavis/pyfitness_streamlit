@@ -3,15 +3,17 @@ import plotly.express as px
 import streamlit as st
 from scipy.optimize import fsolve
 
-from dynamics import Dynamics
+from dynamics import Dynamics, estimate_frontal_area
 
 """
 ## Comparing the tradeoff between riders of different size with drafting and climbing.
 Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 
 ## Scenarios:
-### Compare tradeoff between w/kg as slope changes. Slope can range from -30% to +30%
-- Implemented
+### (1) WKG vs. Slope.
+- Two riders of different size and power output.
+- Shows the performance (speed) differance between the two riders on a given slope.
+
 
 ### Two rider race without drafting
 - Not implemented
@@ -27,9 +29,9 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - Drag Coefficient [Cd]:	0.800
 - Drivetrain Losses [%]	4 %
 - Coefficient of rolling resistance	0.005
-- Drafting effect: This is the percentage reduction of Air Drag. 0% is no drafting, 100% is perfect drafting.
+- Drafting effect: Air_drag_watts * (1-10/100) for 10% drafting
 - Weight [kg]	70.0 kg Default rider weight
-- Frontal Area [m²]	0.565 m² (climbing) Should scale for rider weight using Area(volume) of a cylinder.
+- Frontal Area [m²]	0.565 m² (climbing): Estimates based on height * pi * r^2 with r = 0.006894270128795239*(weight/height).
 - Bike and Accessories Weight [kg]	10.0 kg
 
 #### Future work:
@@ -40,7 +42,9 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - ...
 
 #### Sources
-- Frontal Area: https://www.researchgate.net/publication/23986705_New_Method_to_Estimate_the_Cycling_Frontal_Area or https://www.researchgate.net/figure/The-five-cyclist-positions-with-frontal-area-A-and-definition-and-values-of-1-sagittal_fig2_331366310
+- Frontal Area:
+  1. [New_Method_to_Estimate_the_Cycling_Frontal_Area](https://www.researchgate.net/publication/23986705_New_Method_to_Estimate_the_Cycling_Frontal_Area)
+  2. [five-cyclist-positions-with-frontal-area](https://www.researchgate.net/figure/The-five-cyclist-positions-with-frontal-area-A-and-definition-and-values-of-1-sagittal_fig2_331366310)
 - Drag Coefficient: https://link.springer.com/article/10.1007/s12283-017-0234-1
 - Drivetrain Losses: https://core.ac.uk/download/pdf/29823669.pdf
 - Coefficient of rolling resistance: https://www.sciencedirect.com/science/article/pii/S0165232X2100063X
@@ -66,14 +70,14 @@ with st.form("Tradeoff_Form"):
     rolling_resistance = setup_cols[0].number_input(
         label="Coefficient of rolling resistance", value=0.005, min_value=0.000, max_value=0.05, step=0.001
     )
-    frontal_area_base = setup_cols[1].number_input(
-        label="Frontal Area base: [m² (Not used)]", value=0.423, min_value=0.0, max_value=1.0, step=0.01
-    )
-    start_slope = setup_cols[0].number_input(
+    start_slope = setup_cols[1].number_input(
         label="Starting Slope [%]", value=-10, min_value=-30, max_value=29, step=1, key="start_slope"
     )
-    end_slope = setup_cols[1].number_input(
+    end_slope = setup_cols[2].number_input(
         label="Starting Slope [%]", value=10, min_value=-30, max_value=30, step=1, key="end_slope"
+    )
+    est_front_method = setup_cols[0].selectbox(
+        label="Estimated Frontal area type (used if rider FA is 0)", options=["Standard", "Aero"], key="est_front_type"
     )
 
     r1_cols = st.columns(2)
@@ -83,33 +87,47 @@ with st.form("Tradeoff_Form"):
         label="Weight in [kg]", value=60.0, min_value=0.0, max_value=300.0, step=0.1, key="kg1"
     )
     height_1 = r1_cols[0].number_input(
-        label="Height in [cm] (Not used)", value=175.0, min_value=100.0, max_value=250.0, step=0.1, key="height1"
+        label="Height in [cm]", value=175.0, min_value=100.0, max_value=250.0, step=0.1, key="height1"
     )
     bike_1 = r1_cols[0].number_input(
         label="Bike Weight in kg", value=10.0, min_value=0.0, max_value=20.0, step=0.1, key="bike1"
     )
-    # r1_cols[0].text("Leave at zero to automatically estimate Frontal Area [m²]")
+    r1_cols[0].text("Leave zero to automatically estimate Frontal Area [m²]")
     front_area_1 = r1_cols[0].number_input(
         label="Frontal Area [m²]", value=0.423, min_value=0.0, max_value=1.0, key="front_area1"
     )
-
+    drafting_1 = r1_cols[0].number_input(
+        label="Assume or enable drafting [%]", value=0, min_value=0, max_value=100, step=1, key="drafting_1"
+    )
+    #### Rider 2 ####
     r1_cols[1].subheader("Rider 2")
     power_2 = r1_cols[1].number_input(label="Power [w]", value=300, min_value=100, max_value=1000, step=1, key="ftp2")
     kg_2 = r1_cols[1].number_input(
         label="Weight in [kg]", value=75.0, min_value=0.0, max_value=300.0, step=0.1, key="kg2"
     )
     height_2 = r1_cols[1].number_input(
-        label="Height in [cm] (Not used)", value=180.0, min_value=100.0, max_value=250.0, step=0.1, key="height2"
+        label="Height in [cm]", value=180.0, min_value=100.0, max_value=250.0, step=0.1, key="height2"
     )
     bike_2 = r1_cols[1].number_input(
         label="Bike Weight in kg", value=10.0, min_value=0.0, max_value=20.0, step=0.1, key="bike2"
     )
-    # r1_cols[1].text("Leave at zero to automatically estimate Frontal Area [m²]")
+    r1_cols[1].text("Leave at zero to automatically estimate Frontal Area [m²]")
     front_area_2 = r1_cols[1].number_input(
         label="Frontal Area [m²]", value=0.46, min_value=0.0, max_value=1.0, step=0.01, key="front_area2"
     )
+    drafting_2 = r1_cols[1].number_input(
+        label="Assume or enable drafting [%]", value=0, min_value=0, max_value=100, step=1, key="drafting_2"
+    )
 
     submit_button = st.form_submit_button(label="Submit")
+
+if front_area_1 == 0:
+    tt = est_front_method == "Aero"
+    front_area_1 = estimate_frontal_area(kg_1, height_1, tt)
+
+if front_area_2 == 0:
+    tt = est_front_method == "Aero"
+    front_area_2 = estimate_frontal_area(kg_1, height_1, tt)
 
 
 if submit_button:
@@ -128,6 +146,7 @@ if submit_button:
             drag_coefficient=drag_coefficient,
             rolling_resistance=rolling_resistance,
             drivetrain_loss=drivetrain_loss,
+            drafting_effect=drafting_1,
         )
         rd2 = Dynamics(
             kg=kg_2,
@@ -143,6 +162,7 @@ if submit_button:
             drag_coefficient=drag_coefficient,
             rolling_resistance=rolling_resistance,
             drivetrain_loss=drivetrain_loss,
+            drafting_effect=drafting_2,
         )
 
         points = []

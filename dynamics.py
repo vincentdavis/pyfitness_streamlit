@@ -1,6 +1,22 @@
-from math import exp, radians
+from math import exp, pi, radians
 
 import numpy as np
+
+
+def estimate_frontal_area(kg, height, tt=False):
+    """
+    Estimate frontal area based on rider weight and height.
+    """
+    h = height / 100  # to get meters
+
+    if tt:
+        a = 0.006447910106426458
+    else:
+        a = 0.006894270128795239
+
+    r = a * kg / h
+    fa = h * pi * r**2
+    return fa
 
 
 class Dynamics:
@@ -24,6 +40,7 @@ class Dynamics:
         drag_coefficient: float = 0.8,
         rolling_resistance: float = 0.005,
         drivetrain_loss: float = 0.04,
+        drafting_effect: float = 0.0,  # no drafting
     ):
         # self.solve_for = speed
         self.kg = kg
@@ -39,6 +56,7 @@ class Dynamics:
         self.drag_coefficient = drag_coefficient
         self.rolling_resistance = rolling_resistance
         self.drivetrain_loss = drivetrain_loss / 100
+        self.drafting_effect = drafting_effect / 100
         self.total_kg = self.kg + self.bike_kg
         self.wkg = self.power / self.kg
         self.total_wkg = self.power / self.total_kg
@@ -65,6 +83,7 @@ class Dynamics:
         self.climbing_watts = climbing_watts
         self.rolling_watts = rolling_watts
         self.air_drag_watts = air_drag_watts
+        self.drafting_watts = air_drag_watts * (1 - self.drafting_effect)
         self.drivetrain_loss_watts = drivetrain_loss_watts
         self.total_watts = total_watts
         balance = self.power - total_watts
