@@ -65,8 +65,9 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 
 st.subheader("Tradeoff between riders from -30% to +30% slope")
 
-with st.form("Tradeoff_Form"):
-    senario = st.selectbox("Choose_scenario", options=["1", "2"], key="scenario")
+with st.form("Main Form"):
+    st.markdown("### Choose Scenario")
+    scenario = st.selectbox("Scenario", options=["1", "2"], key="scenario")
     st.markdown("### Environmental settings")
     st.markdown("- Required for all Scenarios")
 
@@ -187,7 +188,7 @@ if submit_button:
         if front_area_2 == 0:
             tt = est_front_method == "Aero"
             front_area_2 = estimate_frontal_area(kg_1, height_1, tt)
-        if senario == "2":
+        if scenario == "2":
             if sum([seg_1, seg_2, seg_3, seg_4, seg_5]) > 100:
                 st.error("Total distance is greater than 100km, fix and try again.")
                 st.stop()
@@ -225,7 +226,7 @@ if submit_button:
             drafting_effect=drafting_2,
         )
 
-        if senario == "1":
+        if scenario == "1":
             st.markdown("###Senario 1 Results")
             points = []
             # print("#####")
@@ -248,7 +249,6 @@ if submit_button:
                 labels={"value": "Speed kph"},
                 title="SLOPE VS SPEED",
             )
-            print(plot1)
             st.plotly_chart(plot1, theme="streamlit", use_container_width=True)
 
             plot1 = px.line(
@@ -260,8 +260,8 @@ if submit_button:
             )
             print(plot1)
             st.plotly_chart(plot1, theme="streamlit", use_container_width=True)
-        elif senario == "2":
-            st.markdown("###Senario 2 Results")
+        elif scenario == "2":
+            st.markdown("### Scenario 2 Results")
             df_1 = rd1.race_course(
                 seg_1, seg_1_slope, seg_2, seg_2_slope, seg_3, seg_3_slope, seg_4, seg_4_slope, seg_5, seg_5_slope
             )
@@ -271,7 +271,7 @@ if submit_button:
             )
             st.markdown("rider 2 computed")
 
-            df_2.drop(columns=["segment", "segment_point", "slope", "distance"], inplace=True)
+            df_2.drop(columns=["segment", "slope", "distance"], inplace=True)
             df_2.rename(columns={c: f"{c}_2" for c in df_2.columns}, inplace=True)
             df = pd.concat([df_1, df_2], axis=1)
             # st.markdown("results merged")
@@ -279,15 +279,16 @@ if submit_button:
             # df.drop(columns=["slope_2", "segment_point_1", "segment_point_2"], inplace=True)
             df["time_diff"] = df["segment_time"] - df["segment_time_2"]
             df["speed_diff"] = df["speed"] - df["speed_2"]
-            df["gap"] = df.time_diff.cumsum()
-            st.dataframe(df.head(10))
+            df["gap"] = df["elapsed_time"] - df["elapsed_time_2"]
+            st.dataframe(df)
 
             plot1 = px.line(
                 df,
                 x="distance",
                 y="gap",
-                # labels={"gap": "Rider 1 - Rider 2: Gap [s]"},
+                labels={"gap": "Rider 1 - Rider 2: Gap [s]", "distance": "Distance [km]"},
                 title="Rider 1 vs Rider 2",
+                height=800,
             )
 
             st.plotly_chart(plot1, theme="streamlit", use_container_width=True)

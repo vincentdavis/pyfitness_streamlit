@@ -123,7 +123,9 @@ class Dynamics:
         - Calculated speed is used to calculate the time to travel the next meter.
         """
         distance = seg_1 + seg_2 + seg_3 + seg_4 + seg_5
+        print(f"Total distance: {distance}km")
         course = []
+        start = 0
         for i, seg in enumerate(
             (
                 (seg_1, seg_1_slope),
@@ -133,17 +135,24 @@ class Dynamics:
                 (seg_5, seg_5_slope),
             )
         ):
+            end = start + int(seg[0] * 1000)
             n = i + 1
-            seg = [(f"seg_{n}", p, seg[1]) for p in range(0, int(seg[0] * 1000) + 1)]
-            course += seg
+            point = [(f"seg_{n}", p / 1000, seg[1]) for p in range(start, end)]
+            print(1, i, seg, start, end)
+            start = end
+            # print(2, i, seg, start, end)
+            course += point
 
         def _calc_speed_with_slope(slope):
             self.slope = slope / 100
             return fsolve(self.calc_speed, 5)[0] * 3.6
 
-        df = pd.DataFrame(course, columns=["segment", "segment_point", "slope"])
-        df["distance"] = df.segment_point.cumsum()
+        df = pd.DataFrame(course, columns=["segment", "distance", "slope"])
         df["speed"] = df.slope.apply(_calc_speed_with_slope)
-        df["segment_time"] = (df.speed / 3600) / 1000
+        df["segment_time"] = df.speed / 3.6
         df["elapsed_time"] = df.segment_time.cumsum()
         return df
+
+
+# d = Dynamics()
+# df = d.race_course(10, 0, 10, 10, 10, -10, 10, 0, 10, 5)
