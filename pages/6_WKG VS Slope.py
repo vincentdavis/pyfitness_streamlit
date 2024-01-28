@@ -227,7 +227,8 @@ if submit_button:
         )
 
         if scenario == "1":
-            st.markdown("###Senario 1 Results")
+            st.markdown("### Senario 1 Results")
+            st.markdown("#### Data")
             points = []
             # print("#####")
             for slope in range(start_slope, end_slope + 1):
@@ -236,10 +237,11 @@ if submit_button:
                 r1_speed = fsolve(rd1.calc_speed, 20)[0]
                 r2_speed = fsolve(rd2.calc_speed, 20)[0]
                 points.append([slope, r1_speed, r2_speed])
-            st.markdown("### Results")
-            column_names = ["slope", f"Rider 1: {round(power_1/kg_1, 1)}wkg", f"Rider 2 {round(power_2/kg_2, 1)}wkg"]
+            column_names = ["slope", f"R1: {round(power_1/kg_1, 1)}wkg (kph)", f"R2 {round(power_2/kg_2, 1)}wkg (kph)"]
             df = pd.DataFrame(points, columns=column_names)
-            df["Rider 1 - Rider 2"] = df[column_names[1]] - df[column_names[2]]
+            for c in column_names[1:]:
+                df[c] = df[c] * 3.6
+            df["R1 - R2 (kph)"] = df[column_names[1]] - df[column_names[2]]
             st.dataframe(df)
 
             plot1 = px.line(
@@ -254,7 +256,7 @@ if submit_button:
             plot1 = px.line(
                 df,
                 x="slope",
-                y="Rider 1 - Rider 2",
+                y="R1 - R2 (kph)",
                 labels={"Rider 1 - Rider 2": "Rider 1 - Rider 2 kph"},
                 title="SLOPE VS Difference in Speed",
             )

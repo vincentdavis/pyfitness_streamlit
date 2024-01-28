@@ -11,6 +11,5 @@ fitdecode==0.10.0
 s3fs==2023.12.2
 pyfitness==0.2.1
 ruff==0.1.14
-black==23.12.1
 watchdog==3.0.0
 pur==7.3.1
