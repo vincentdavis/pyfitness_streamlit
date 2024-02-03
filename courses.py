@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import numpy as np
 import pandas as pd
 
 from dynamics import Dynamics
@@ -50,14 +51,16 @@ class RaceCourse:
         """Add the rider to the rider list and adds the rider name to the course dataframe"""
         for rider in riders:
             assert rider.name not in self.course.columns
-            self.course[[f"{rider.name} [kg]"]] = rider.power
-            self.course[[f"{rider.name} [cm]"]] = rider.power
-            self.course[[f"{rider.name} [ftp]"]] = rider.power
+            self.course[[f"{rider.name} [kg]"]] = rider.kg
+            self.course[[f"{rider.name} [cm]"]] = rider.height
+            self.course[[f"{rider.name} [ftp]"]] = rider.ftp
             self.course[[f"{rider.name} [power]"]] = rider.power
-            self.course[[f"{rider.name} [frontal_area]"]] = rider.power
-            self.course[[f"{rider.name} [bike_kg]"]] = rider.power
-            self.course[[f"{rider.name} [rolling_resistance]"]] = rider.power
-            self.course[[f"{rider.name} [drivetrain_loss]"]] = rider.power
+            self.course[[f"{rider.name} [frontal_area]"]] = rider.frontal_area
+            self.course[[f"{rider.name} [bike_kg]"]] = rider.bike_kg
+            self.course[[f"{rider.name} [rolling_resistance]"]] = rider.rolling_resistance
+            self.course[[f"{rider.name} [drivetrain_loss]"]] = rider.drivetrain_loss
+            self.course[[f"{rider.name} [drafting_effect]"]] = rider.drafting_effect
+            self.course[[f"{rider.name} [speed]"]] = np.nan
             self.riders.append(rider)
 
     def race(self):
