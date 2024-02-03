@@ -1,7 +1,4 @@
-import pandas as pd
-import plotly.express as px
 import streamlit as st
-from pyfitness.load_data import fitfileinfo, fit2df
 
 st.set_page_config(layout="wide")
 
@@ -13,6 +10,7 @@ This is a work in progress.
 Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 
 See option in left menu
+
+Need data from zwiftpower, Checkout [ZwiftToCSV](https://zwifttocsv.streamlit.app
+
 """
-
-
