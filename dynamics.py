@@ -4,41 +4,37 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import fsolve
 
-
-LONG_NAMES = {"power": "Power output [watts]",
-              "kg": "Rider weight [kg]",
-              "bkg": "Bike weight [kg]",
-              "height": "Rider height [cm]",
-              "farea": "Rider Frontal srea [m^3]",
-              "slope": "Slope [%]",
-              "altitude": "Starting altitude [m]",
-              "temp": "Temperature [c]",
-              "wind": "Wind speed [kph]",
-              "wind_dir": "Wind Direction 0=headwind [deg]",
-              "e_wind": "Effective wind speed [m/s]",
-              "drag": "Air Drag Coefficent [Cd]",
-              "rr": "Coefficient of Rolling Resistance",
-              "rr_force": "Rolling Resistance force [N]",
-              "rr_watts": "Rolling Resistance power [watts]",
-              'climbing_force': "Climbing force [N]",
-              "climbing_power": "Climbing power [watts]",
-
-              "dt": "Drivetrain, other Efficiency Losses [%]",
-              "dt_watts": "Drivetrain power loss [watts]",
-              "draft": "Drafting effect [%]",
-              "surface": "surface_drag (rr X surface) [%]"
-              }
-
-#         air_drag_force = 0.5 * self.CdA * self.air_density * np.square(speed + effective_wind_speed)
-#         air_drag_watts = air_drag_force * speed
-#         total_watts = climbing_watts + rolling_watts + air_drag_watts + drivetrain_loss_watts
-#         self.climbing_watts = climbing_watts
-#         self.rolling_watts = rolling_watts
-#         self.air_drag_watts = air_drag_watts
-#         self.drafting_watts = air_drag_watts * (1 - self.drafting_effect)
-#         self.drivetrain_loss_watts = drivetrain_loss_watts
-#         self.total_watts = total_watts
-#         balance = self.power - total_watts
+LONG_NAMES = {
+    "power": "Power output [watts]",
+    "kg": "Rider weight [kg]",
+    "wkg": "Watts per kg, rider only [w/kg]",
+    "twkg": "Watts per kg, total [w/kg]",
+    "bkg": "Bike weight [kg]",
+    "tkg": "Total weight [kg]",
+    "height": "Rider height [cm]",
+    "f_area": "Rider Frontal srea [m^3]",
+    "cda": "Coefficient of Drag [CdA]",
+    "slope": "Slope [%]",
+    "altitude": "Starting altitude [m]",
+    "temp": "Temperature [c]",
+    "wind": "Wind speed [kph]",
+    "wind_dir": "Wind Direction 0=headwind [deg]",
+    "e_wind": "Effective wind speed [m/s]",
+    "drag": "Air Drag Coefficent [Cd]",
+    "rr": "Coefficient of Rolling Resistance",
+    "rr_force": "Rolling Resistance force [N]",
+    "rr_watts": "Rolling Resistance power [watts]",
+    "climbing_force": "Climbing force [N]",
+    "climbing_watts": "Climbing power [watts]",
+    "air_drag_force": "Air Drag force [N]",
+    "air_drag_watts": "Air Drag power [watts]",
+    "total_watts": "Total power used [watts]",
+    "dt": "Drivetrain, other Efficiency Losses [%]",
+    "dt_watts": "Drivetrain power loss [watts]",
+    "draft": "Drafting effect [%]",
+    "drafting_watts": "Drafting power [watts]",
+    "surface": "surface_drag (rr X surface) [%]",
+}
 
 
 def estimate_frontal_area(kg, height, tt=False):
@@ -56,7 +52,9 @@ def estimate_frontal_area(kg, height, tt=False):
     fa = h * pi * r**2
     return fa
 
-class speed_result()
+
+class speed_result:
+    pass
 
 
 class Dynamics:
@@ -274,9 +272,9 @@ def calc_speed_exact(
 
     a = 2 * effective_wind_speed
     # print(f"a: {a}")
-    b = (climbing_force + rolling_force) / (0.5 * self.CdA * self.air_density) + effective_wind_speed**2
+    b = (climbing_force + rolling_force) / (0.5 * CdA * air_density) + effective_wind_speed**2
     # print(f"b: {b}")
-    c = (drivetrain_loss_watts - self.power) / (0.5 * self.CdA * self.air_density)
+    c = (drivetrain_loss_watts - power) / (0.5 * CdA * air_density)
     # print(f"c: {c}")
     P = (3 * b - a**2) / 3
     # print(f"P: {P}")
