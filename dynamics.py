@@ -8,28 +8,29 @@ LONG_NAMES = {
     "power": "Power output [watts]",
     "kg": "Rider weight [kg]",
     "wkg": "Watts per kg, rider only [w/kg]",
-    "twkg": "Watts per kg, total [w/kg]",
+    "total_wkg": "Watts per kg, total [w/kg]",
     "bkg": "Bike weight [kg]",
-    "tkg": "Total weight [kg]",
+    "total_kg": "Total weight [kg]",
     "height": "Rider height [cm]",
     "f_area": "Rider Frontal srea [m^3]",
-    "cda": "Coefficient of Drag [CdA]",
+    "cd": "Air Drag Coefficent [Cd]",
+    "cda": "Coefficient of Drag (CdA [m^2]",
+    "air_density": "Air density [kg/m^3]",
     "slope": "Slope [%]",
     "altitude": "Starting altitude [m]",
-    "temp": "Temperature [c]",
-    "wind": "Wind speed [kph]",
-    "wind_dir": "Wind Direction 0=headwind [deg]",
-    "e_wind": "Effective wind speed [m/s]",
-    "drag": "Air Drag Coefficent [Cd]",
-    "rr": "Coefficient of Rolling Resistance",
-    "rr_force": "Rolling Resistance force [N]",
-    "rr_watts": "Rolling Resistance power [watts]",
+    "temperature": "Temperature [c]",
+    "wind_speed": "Wind speed [kph]",
+    "wind_direction": "Wind Direction 0=headwind [deg]",
+    "effective_wind_speed": "Effective wind speed [m/s]",
+    "crr": "Coefficient of Rolling Resistance",
+    "crr_force": "Rolling Resistance force [N]",
+    "crr_watts": "Rolling Resistance power [watts]",
     "climbing_force": "Climbing force [N]",
     "climbing_watts": "Climbing power [watts]",
     "air_drag_force": "Air Drag force [N]",
     "air_drag_watts": "Air Drag power [watts]",
     "total_watts": "Total power used [watts]",
-    "dt": "Drivetrain, other Efficiency Losses [%]",
+    "dt_loss": "Drivetrain, other Efficiency Losses [%]",
     "dt_watts": "Drivetrain power loss [watts]",
     "draft": "Drafting effect [%]",
     "drafting_watts": "Drafting power [watts]",
@@ -75,9 +76,9 @@ class Dynamics:
         temperature: float = 20,
         wind_speed: float = 10,
         wind_direction: float = 0,
-        drag_coefficient: float = 0.8,
-        rolling_resistance: float = 0.005,
-        drivetrain_loss: float = 0.04,
+        cd: float = 0.8,
+        crr: float = 0.005,
+        dt_loss: float = 0.04,
         drafting_effect: float = 0.0,  # no drafting
     ):
         # self.solve_for = speed
@@ -91,14 +92,14 @@ class Dynamics:
         self.temperature = temperature
         self.wind_speed = wind_speed
         self.wind_direction = wind_direction
-        self.drag_coefficient = drag_coefficient
-        self.rolling_resistance = rolling_resistance
-        self.drivetrain_loss = drivetrain_loss / 100
+        self.cd = cd
+        self.crr = crr
+        self.dt_loss = dt_loss / 100
         self.drafting_effect = drafting_effect / 100
         self.total_kg = self.kg + self.bike_kg
         self.wkg = self.power / self.kg
         self.total_wkg = self.power / self.total_kg
-        self.CdA = self.drag_coefficient * self.frontal_area
+        self.cdA = self.cd * self.frontal_area
         self.air_density = (
             (101325 / (287.05 * 273.15))
             * (273.15 / (self.temperature + 273.15))
@@ -110,20 +111,20 @@ class Dynamics:
         Calculate speed for a given rider
         """
         effective_wind_speed = np.cos(radians(self.wind_direction)) * self.wind_speed
-        drivetrain_loss_watts = self.power * self.drivetrain_loss
-        rolling_force = np.cos(np.arctan(self.slope)) * 9.8067 * self.total_kg * self.rolling_resistance
+        drivetrain_loss_watts = self.power * self.dt_loss
+        rolling_force = np.cos(np.arctan(self.slope)) * 9.8067 * self.total_kg * self.crr
         rolling_watts = rolling_force * speed
         climbing_force = self.total_kg * 9.8067 * np.sin(np.arctan(self.slope))
         climbing_watts = climbing_force * speed
 
-        air_drag_force = 0.5 * self.CdA * self.air_density * np.square(speed + effective_wind_speed)
+        air_drag_force = 0.5 * self.cdA * self.air_density * np.square(speed + effective_wind_speed)
         air_drag_watts = air_drag_force * speed
         total_watts = climbing_watts + rolling_watts + air_drag_watts + drivetrain_loss_watts
         self.climbing_watts = climbing_watts
         self.rolling_watts = rolling_watts
         self.air_drag_watts = air_drag_watts
         self.drafting_watts = air_drag_watts * (1 - self.drafting_effect)
-        self.drivetrain_loss_watts = drivetrain_loss_watts
+        self.dt_loss_watts = drivetrain_loss_watts
         self.total_watts = total_watts
         balance = self.power - total_watts
 
@@ -143,15 +144,15 @@ class Dynamics:
         """
 
         effective_wind_speed = np.cos(radians(self.wind_direction)) * self.wind_speed
-        rolling_force = np.cos(np.arctan(self.slope)) * 9.8067 * self.total_kg * self.rolling_resistance
+        rolling_force = np.cos(np.arctan(self.slope)) * 9.8067 * self.total_kg * self.crr
         climbing_force = self.total_kg * 9.8067 * np.sin(np.arctan(self.slope))
-        drivetrain_loss_watts = self.power * self.drivetrain_loss
+        drivetrain_loss_watts = self.power * self.dt_loss
 
         a = 2 * effective_wind_speed
         # print(f"a: {a}")
-        b = (climbing_force + rolling_force) / (0.5 * self.CdA * self.air_density) + effective_wind_speed**2
+        b = (climbing_force + rolling_force) / (0.5 * self.cdA * self.air_density) + effective_wind_speed**2
         # print(f"b: {b}")
-        c = (drivetrain_loss_watts - self.power) / (0.5 * self.CdA * self.air_density)
+        c = (drivetrain_loss_watts - self.power) / (0.5 * self.cdA * self.air_density)
         # print(f"c: {c}")
         P = (3 * b - a**2) / 3
         # print(f"P: {P}")

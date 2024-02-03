@@ -204,9 +204,9 @@ if submit_button:
             temperature=temperature,
             wind_speed=wind_speed,
             wind_direction=wind_direction,
-            drag_coefficient=drag_coefficient,
-            rolling_resistance=rolling_resistance,
-            drivetrain_loss=drivetrain_loss,
+            cd=drag_coefficient,
+            crr=rolling_resistance,
+            dt_loss=drivetrain_loss,
             drafting_effect=drafting_1,
         )
         rd2 = Dynamics(
@@ -220,9 +220,9 @@ if submit_button:
             temperature=temperature,
             wind_speed=wind_speed,
             wind_direction=wind_direction,
-            drag_coefficient=drag_coefficient,
-            rolling_resistance=rolling_resistance,
-            drivetrain_loss=drivetrain_loss,
+            cd=drag_coefficient,
+            crr=rolling_resistance,
+            dt_loss=drivetrain_loss,
             drafting_effect=drafting_2,
         )
 
