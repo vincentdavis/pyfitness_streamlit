@@ -5,8 +5,14 @@ from scipy.optimize import fsolve
 
 from dynamics import Dynamics, estimate_frontal_area
 
-"""
-## Comparing the tradeoff between riders of different size with drafting and climbing.
+st.set_page_config(
+    page_title="WKG vs Slope",
+    page_icon="\u1F6B2",
+    layout="wide",
+    initial_sidebar_state="auto",
+)
+
+""" ## Comparing the tradeoff between riders of different size with drafting and climbing.
 Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 
 ## Scenarios:

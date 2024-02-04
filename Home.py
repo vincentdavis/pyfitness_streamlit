@@ -1,6 +1,11 @@
 import streamlit as st
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="Vincent's experiments",
+    page_icon="\u1F6B2",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 """
 # Welcome to Vincent's experiments with cycling data files

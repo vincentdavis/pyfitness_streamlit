@@ -3,10 +3,15 @@ import plotly.express as px
 import streamlit as st
 from pyfitness.load_data import fit2df
 
-"""
-# Welcome to Vincent's experiments with cycling data files
+st.set_page_config(
+    page_title="Efficiency Analysis",
+    page_icon="\u1F6B2",
+    layout="wide",
+    initial_sidebar_state="auto",
+)
 
-#### Efficiency Analisys.
+"""
+#### Efficiency Analysis.
 I am defining Efficiency like miles per gallon, that is how far do you go for a given amount of power or physiological 
 effort.
 

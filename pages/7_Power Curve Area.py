@@ -6,8 +6,15 @@ import streamlit as st
 
 from power_curve_area import power_area_calc
 
+st.set_page_config(
+    page_title="Critical Power area under curve",
+    page_icon="\u1F6B2",
+    layout="wide",
+    initial_sidebar_state="auto",
+)
+
 """
-## Power Curve Area
+## Critical Power area under curve
 Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 
 This is a work in progress. Planninng to add FIT file upload next.
@@ -15,7 +22,7 @@ This is a work in progress. Planninng to add FIT file upload next.
 ### Calculate the area under the power curve
 - You can adjust the numbers (seconds and watts) to match your power curve
 - It is recommended to use the second intervals below for comparing to others.
-- The area units if wattsXseconds and convered to WattHrs
+- The area units if watts X seconds and converted to WattHrs
 """
 
 with st.form(key="power_curve_area"):
