@@ -11,49 +11,50 @@ st.set_page_config(
 
 """
 ## The Worst Ramp Test Ever
-Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
+For questions or comments, contact me on Discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 
-The goal of this project was to take a riders power curve, sometimes called critical power curve and build a workout 
-that will produce the that power curve. My initial question was, "Can I build a 20min workout that will produce my 20min 
+My goal for this project was to take a rider's power curve, sometimes called Critical Power curve, and build a workout 
+to produce that power curve. My initial question was, "Can I build a 20min workout that will produce my 20min 
 power profile?" The answer is yes.
 
-As you can image, a 20min workout that will producce your 20min profile, is never going to be easy. What this looks like 
+As you can imagine, a 20min workout that will produce your 20min profile will never be easy. What this looks like 
 will surprise you.
 
 ### How the problem is solved:
-1. Define a power profile, it must start with 1 second power and end with 20min and contain as many intermidiat points 
+1. Define a power profile, it must start with 1-second power and end with 20min and contain as many intermediate points 
 are desired. Something like: `(sec, power) (1, 1000), (2, 900) (3, 875), (5, 800), (30, 500), (60, 450), (300, 400), (1200, 350)`
-2. Interperlate the power profile for each second. Keep in mind, (5, 800) means 800 watts(average) for 5 seconds.
+2. Interperlate the power profile for each second. Keep in mind that (5, 800) means 800 watts(average) for 5 seconds.
 3. We are now ready to calculate the workout.
 
 ### The workout:
 1. We start from the end of the workout and work toward the start.
-2. The end power, last second, of the workout will be the riders 1 sec critical power = 1000.
-3. The next (second to last) will need to statisfy (1000w + x)/2sec = 900w. x = 800w To make sense of this, if you did 
-1000w for 1 second than to have a 2 second average power of 900watts, you only need to do 800watts for the second, 
+2. The workout's end power and last second will be the riders 1 sec critical power = 1000.
+3. The next (second to last) will need to satisfy `(1000w + x)/2sec = 900w. x = 800w` To make sense of this, if you did 
+1000w for 1 second, then to have a 2-second average power of 900watts, you only need to do 800watts for the second 
 second.
-4. The third is than, (1000w + 800w + x)/3sec = 875w. x = 825w
+4. The third is than, `(1000w + 800w + x)/3sec = 875w. x = 825w`
 5. Continue this process until the workout is complete.
 6. Now we have ramp power defined for each second of duration from 1-1200seconds
-7. The last 30seconds is a 1 second ramp.
-8. Average the power for the second to last 30seconds. as a segment. 
-9. The first 19min is converted to 1min segments set the the everage power for each segment.
+7. The last 30 seconds is a 1-second ramp.
+8. Average the power for the second to last 30 seconds. as a segment. 
+9. The first 19min is are converted to 1-minute segments, setting the the average power for each segment.
 
 ### Corner cases:
 . This calculation will sometimes result in the need to do negative power. The power is set to 0 in these cases. Usually 
 it is only slightly negative.
-. The per second ramp power workout should exactly match the critical power profile if ridden. (except for this issue above)
-. The workout created with the 1min segments, is a close approximation of the critical power profile.
+. If ridden, the per-second ramp power workout should match the critical power profile. (except for this issue above)
+. The workout created with the 1min segments is a close approximation of the critical power profile.
 
 ## Get a workout:
-. Zwift workouts are defined as a % of ftp. You will get 3 workouts,
-  . ftp = The value you define below will be used to override your zwift value during the workout.
-  . ftp = 1. In the case the workout will define the power you must ride, i.e. 120% of ftp == 120watts. Kinda a hack to 
+. Zwift workouts are defined as a % of FTP. You will get three workouts,
+  . Ftp = The value you define below will override your Zwift value during the workout.
+  . Ftp = 1. In this case, the workout will define the power you must ride, i.e., 120% of ftp == 120 watts. It's kind of a hack to 
   set the watts.
-  . ftp = user (zwift) defined ftp. The workout will be defined as a % the provided ftp but when you ride it will use 
-  your zwift ftp.
-. You can define as many (second, watts) points as you like. Starting with 1sec and ending with 1200sec.(20min) or more.
-. Result: 4 files, the 3 workouts and the full data as a csv file.
+  . ftp = user, Zwift,  defined ftp. The workout will be defined as a % of the provided FTP, but it will use 
+  your Zwift FTP when you ride.
+. You can define as many (second, watts) points as you like. Starting with 1 sec and ending with 1200 sec.(20 min) or more.
+. Result: 4 files, the three workouts, and the complete data as a CSV file.
+
 """
 
 with st.form(key="ramp_test"):
