@@ -60,7 +60,9 @@ def make_zwo_from_ramp(workout: pd.DataFrame, filename: str | None, name: str, f
         xml += f"  <ftpOverride>{ftp}</ftpOverride>\n"
     xml += "  <workout>\n"
     for r in workout.to_dict(orient="records"):
-        xml += f'      <SteadyState Duration="{r['duration']}" Power="{r['power%ftp']}"/>\n'
+        d = r["duration"]
+        p = r["power%ftp"]
+        xml += f'      <SteadyState Duration="{d}" Power="{p}"/>\n'
     xml += "    </workout>\n"
     xml += "</workout_file>\n"
     if filename:

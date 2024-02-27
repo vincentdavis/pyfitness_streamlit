@@ -48,8 +48,10 @@ it is only slightly negative.
 ## Get a workout:
 . Zwift workouts are defined as a % of ftp. You will get 3 workouts,
   . ftp = The value you define below will be used to override your zwift value during the workout.
-  . ftp = 1. In the case the workout will define the power you must ride, i.e. 120% of ftp == 120watts. Kinda a hack to set the watts.
-  . ftp = user (zwift) defined ftp. The workout will be defined as a % the provided ftp but when you ride it will use your zwift ftp.
+  . ftp = 1. In the case the workout will define the power you must ride, i.e. 120% of ftp == 120watts. Kinda a hack to 
+  set the watts.
+  . ftp = user (zwift) defined ftp. The workout will be defined as a % the provided ftp but when you ride it will use 
+  your zwift ftp.
 . You can define as many (second, watts) points as you like. Starting with 1sec and ending with 1200sec.(20min) or more.
 . Result: 4 files, the 3 workouts and the full data as a csv file.
 """
@@ -73,7 +75,7 @@ if submit:
         df, dfwko = ramp_test_activity(profile, ftp=ftp)
         wko1 = make_zwo_from_ramp(dfwko, filename=None, name=f"{name}_ftp_{ftp}", ftp=ftp)
         wko2 = make_zwo_from_ramp(dfwko, filename=None, name=f"{name}_ftp_1", ftp=1)
-        wkonone = make_zwo_from_ramp(dfwko, filename=None, name=f"{name}_ftp_1", ftp=None)
+        wko_user = make_zwo_from_ramp(dfwko, filename=None, name=f"{name}_ftp_1", ftp=None)
 
         st.download_button(
             label="Full data as CSV",
@@ -95,7 +97,7 @@ if submit:
         )
         st.download_button(
             label="Download WKO with ftp set to in game ftp",
-            data=wkonone.encode("utf-8"),
+            data=wko_user.encode("utf-8"),
             file_name=f"ramp_test_{name}_ftp_user.zwo",
             mime="text/csv",
         )
