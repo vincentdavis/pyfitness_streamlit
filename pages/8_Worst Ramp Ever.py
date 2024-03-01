@@ -1,3 +1,4 @@
+import plotly.express as px
 import streamlit as st
 
 from ramp_test import make_zwo_from_ramp, ramp_test_activity
@@ -102,3 +103,12 @@ if submit:
             file_name=f"ramp_test_{name}_ftp_user.zwo",
             mime="text/csv",
         )
+
+    power_curve = px.line(df, x="seconds", y=["power", "ramp_power"], title="Critical Power and Ramp test power")
+    st.plotly_chart(power_curve, theme="streamlit", use_container_width=True)
+    bined_curve = px.line(df, x="seconds", y=["power", "bin_power"], title="Critical Power and Workout power")
+    st.plotly_chart(bined_curve, theme="streamlit", use_container_width=True)
+    result_curve = px.line(
+        df, x="seconds", y=["power", "WKO Critical Power"], title="Critical Power VS Workout Critical Power"
+    )
+    st.plotly_chart(result_curve, theme="streamlit", use_container_width=True)

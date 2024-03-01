@@ -56,6 +56,7 @@ def ramp_test_activity(
     df["power_per_ftp"] = df["power"] / ftp
     df["ramp_power_per_ftp"] = df["ramp_power"] / ftp
     df["bin_power_per_ftp"] = df["bin_power"] / ftp
+    df["WKO Critical Power"] = df["bin_power"].expanding().mean()
     df_wko = df.drop_duplicates(subset=["bins"], keep="first")
     df_wko = df_wko[["bins", "bin_time", "bin_power", "bin_power_per_ftp"]].copy()
     df_wko.rename(
