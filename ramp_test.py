@@ -1,6 +1,32 @@
 import pandas as pd
 
 
+def _interpolate_curve(df: pd.DataFrame) -> pd.DataFrame:
+    """Interpolate the power curve to 1 second intervals"""
+    max_time = df["seconds"].max()
+    df.set_index("seconds", inplace=True)
+    # fill in missing seconds
+    new_index = pd.Index(range(1, max_time + 1), name="seconds")
+    df = df.reindex(new_index)
+    # Interpolate power for missing seconds
+    df["power"] = df["power"].interpolate(method="linear")
+    df.reset_index(inplace=True)
+    return df
+
+
+def _calculate_ramp_power(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate the ramp power for each second"""
+    df["ramp_power"] = 0.0
+    for idx in df.index:
+        if idx == 0:
+            df.loc[idx, "ramp_power"] = df.loc[idx, "power"]
+        else:
+            df.loc[idx, "ramp_power"] = df.loc[idx, "power"] * df.loc[idx, "seconds"] - df.loc[: idx - 1][
+                "ramp_power"
+            ].sum().clip(min=0)
+    return df
+
+
 def ramp_test_activity(
     profile: list[tuple[int:float]], segment_time: int = 30, test_length: int = 1200, ftp: int = 1
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -19,24 +45,17 @@ def ramp_test_activity(
     except AssertionError:
         raise ValueError("The profile must end with with a time >= test_length")
     df = pd.DataFrame(profile, columns=["seconds", "power"])
-    df.set_index("seconds", inplace=True)
-    # fill in missing seconds
-    new_index = pd.Index(range(1, profile[-1][0] + 1), name="seconds")
-    df = df.reindex(new_index)
-    # Interpolate power for missing seconds
-    df["power"] = df["power"].interpolate(method="linear")
-    df.reset_index(inplace=True)
+    df = _interpolate_curve(df)
     df = df[df.seconds <= test_length].copy()
-    df["power_seconds"] = df["power"] * df["seconds"]
-    df["ramp_power"] = 0
-    df["ramp_power"] = (df["power_seconds"] - df["power_seconds"].shift(1, fill_value=0)).clip(lower=0)
+
+    df = _calculate_ramp_power(df)
+
     df["bins"] = df.apply(lambda row: row.name // segment_time + 30 if int(row.name) > 30 else row.name, axis=1)
     df["bin_power"] = df.groupby("bins")["ramp_power"].transform("mean").round(0)
     df["bin_time"] = df.groupby("bins")["seconds"].transform("count")
     df["power_per_ftp"] = df["power"] / ftp
     df["ramp_power_per_ftp"] = df["ramp_power"] / ftp
     df["bin_power_per_ftp"] = df["bin_power"] / ftp
-    df.drop(columns=["power_seconds"], inplace=True)
     df_wko = df.drop_duplicates(subset=["bins"], keep="first")
     df_wko = df_wko[["bins", "bin_time", "bin_power", "bin_power_per_ftp"]].copy()
     df_wko.rename(
