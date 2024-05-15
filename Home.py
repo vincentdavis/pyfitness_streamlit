@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Vincent's experiments",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -16,6 +16,6 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 
 See option in left menu
 
-Need data from zwiftpower, Checkout [ZwiftToCSV](https://zwifttocsv.streamlit.app
+Need data from ZwiftPower, Checkout [ZwiftToCSV](https://zwifttocsv.heteroskedastic.org
 
 """

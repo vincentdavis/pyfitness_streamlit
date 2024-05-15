@@ -7,7 +7,7 @@ from dynamics import Dynamics, estimate_frontal_area
 
 st.set_page_config(
     page_title="WKG vs Slope",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="auto",
 )
@@ -20,7 +20,7 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - Two riders of different size and power output.
 - Shows the performance (speed) differance between the two riders on a given slope.
 
-### (2) Two riders race without competitive drafting.
+### (2) Two riders race, no drafting.
 - Define course Each segment can be 0km in length
     1. Segment 1 [km]
     2. Segment 1 grade [%] (negative to decend)
@@ -38,8 +38,12 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 - Calculated speed is used to calculate the time to travel the next meter.
 - max total distance is 100km
 
-### (2) Two riders race with competitive drafting.
-- Not implemented:	
+### (3) Two riders race with competitive drafting.
+- #### Not implemented:	
+1. Speed for each rider without drafting is calculated.Rider with the loer
+2. Rider with lowest speed is assumed to be drafting the other rider.
+3. Power for drafting rider is calcualted.
+4. TSS, IF, NP, etc. are calculated for each rider.
 
 #### Definitions:
 - Altitude [m]:	0 m (starting altitude)
