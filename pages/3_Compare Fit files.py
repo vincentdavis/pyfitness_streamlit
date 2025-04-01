@@ -1,7 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from pyfitness.load_data import fit2df, fitfileinfo
+from pyfitness.fd_loader import fitfileinfo, fit2df
 
 st.set_page_config(
     page_title="Strange fit file stats",

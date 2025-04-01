@@ -60,7 +60,7 @@ Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users
 
 #### Future work:
 - Consider Temperature as it related to rider size and the ability to dissipate heat. Need Reference.
-- Add TSS, IF and other metrics and limited related to riders ftp.
+- Add TSS, IF and other metrics and limits related to riders ftp.
 - add Wind Direction
 - ...
 

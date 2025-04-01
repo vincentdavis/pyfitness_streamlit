@@ -1,11 +1,11 @@
 import numpy as np
 import plotly.express as px
 import streamlit as st
-from pyfitness.load_data import fit2df
+from pyfitness.fd_loader import fit2df
 
 st.set_page_config(
     page_title="Efficiency Analysis",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="auto",
 )

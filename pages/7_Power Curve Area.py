@@ -8,7 +8,7 @@ from power_curve_area import power_area_calc
 
 st.set_page_config(
     page_title="Critical Power area under curve",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="auto",
 )

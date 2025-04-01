@@ -1,5 +1,5 @@
 import streamlit as st
-from pyfitness.load_data import fit2df, fitfileinfo
+from pyfitness.fd_loader import fit2df, fitfileinfo
 
 st.set_page_config(
     page_title="Fit File info",

@@ -3,7 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from pyfitness.dynamics import climb_power_estimate
-from pyfitness.load_data import fit2df
+from pyfitness.fd_loader import fit2df
 from pyfitness.statistics import max_climb
 
 # from vam import FitVam
@@ -11,7 +11,7 @@ from vam2 import estimated_power
 
 st.set_page_config(
     page_title="Estimated VS Measured: power",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="auto",
 )

@@ -5,7 +5,7 @@ from ramp_test import make_zwo_from_ramp, ramp_test_activity
 
 st.set_page_config(
     page_title="Worst Ramp Ever",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="auto",
 )
