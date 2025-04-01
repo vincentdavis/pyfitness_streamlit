@@ -1,16 +1,16 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from pyfitness.fd_loader import fitfileinfo, fit2df
+from pyfitness.fd_loader import fit2df, fitfileinfo
 
 st.set_page_config(
     page_title="Strange fit file stats",
-    page_icon="\u1F6B2",
+    page_icon="\u1f6b2",
     layout="wide",
     initial_sidebar_state="auto",
 )
 """
-#### Compare interesting, obscure,  stats between two fit files
+#### Compare interesting and obscure stats between two FIT files
 
 Questions, comments, contact me on discord: [Vincent.Davis](discordapp.com/users/vincent.davis)
 """
